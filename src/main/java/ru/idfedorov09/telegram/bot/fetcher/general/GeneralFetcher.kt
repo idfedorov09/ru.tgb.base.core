@@ -1,4 +1,4 @@
-package ru.idfedorov09.telegram.bot.fetcher
+package ru.idfedorov09.telegram.bot.fetcher.general
 
 import org.apache.commons.lang3.SerializationUtils
 import org.slf4j.LoggerFactory

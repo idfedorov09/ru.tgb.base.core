@@ -5,7 +5,7 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import org.slf4j.LoggerFactory
-import ru.idfedorov09.telegram.bot.fetcher.GeneralFetcher
+import ru.idfedorov09.telegram.bot.fetcher.general.GeneralFetcher
 
 class FlowBuilder {
 
@@ -48,15 +48,23 @@ class FlowBuilder {
         currentNode.addFetcher(fetcherInstance)
     }
 
+    suspend fun initAndRun(
+        node: FlowNode = currentNode,
+        flowContext: FlowContext,
+    ) {
+        // обновляем эксп
+        exp = ExpContainer()
+        // кладем эксп в контекст, чтобы была возможность менять его по ходу выполнения графа
+        if (!flowContext.containsBeanByType(ExpContainer::class.java)) {
+            flowContext.insertObject(exp)
+        }
+        run(node, flowContext)
+    }
+
     suspend fun run(
         node: FlowNode = currentNode,
         flowContext: FlowContext,
     ) {
-        exp = ExpContainer()
-        // кладем эксп в контекст, чтобы была возможность менять его по ходу выполнения графа
-        if (!flowContext.containsBeanByType(ExpContainer::class.java)) {
-            flowContext.insertObject(ExpContainer())
-        }
         coroutineScope {
             val toRun = mutableListOf<Any>()
             node.children.forEach { children ->

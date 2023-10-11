@@ -1,4 +1,4 @@
-package ru.idfedorov09.telegram.bot.enums
+package ru.idfedorov09.telegram.bot.data.enums
 
 /**
  * Перечисление с примерами возможного статуса занятности бота
