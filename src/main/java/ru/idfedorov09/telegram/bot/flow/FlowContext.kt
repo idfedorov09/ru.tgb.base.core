@@ -23,13 +23,19 @@ data class FlowContext(
     /**
      * Извлекает из контекста объект по типу, если такой есть; если нет то возвращается null
      */
-    open fun getBeanByType(clazz: Class<*>): Any? {
+    fun getBeanByType(clazz: Class<*>): Any? {
         if (!containsBeanByType(clazz)) {
             log.warn("Context doesn't contains object with type ${clazz.name}")
             return null
         }
         return contextMap[clazz.name]
     }
+
+    /**
+     * Более короткий аналог getBeanByType: просто вызовите flowContext.get<ObjClass>(), чтобы получить
+     * нужный вам экземпляр из контекста
+     */
+    inline fun <reified T> get() = this.getBeanByType(T::class.java) as T?
 
     fun containsBeanByType(clazz: Class<*>): Boolean {
         return contextMap.contains(clazz.name)
