@@ -13,8 +13,6 @@ class FlowBuilder {
         private val log = LoggerFactory.getLogger(this.javaClass)
     }
 
-    var exp: ExpContainer = ExpContainer()
-
     private var currentNode: FlowNode = FlowNode(
         GeneralFetcher(),
         mutableListOf(),
@@ -23,7 +21,7 @@ class FlowBuilder {
     )
 
     fun group(
-        condition: (ExpContainer) -> Boolean = { true },
+        condition: (FlowContext) -> Boolean = { true },
         action: () -> Unit,
     ) {
         val lastStateNode = currentNode
@@ -33,7 +31,7 @@ class FlowBuilder {
     }
 
     fun whenComplete(
-        condition: (ExpContainer) -> Boolean = { true },
+        condition: (FlowContext) -> Boolean = { true },
         action: () -> Unit,
     ) {
         val lastStateNode = currentNode
@@ -48,15 +46,18 @@ class FlowBuilder {
         currentNode.addFetcher(fetcherInstance)
     }
 
+    // TODO
     suspend fun initAndRun(
         node: FlowNode = currentNode,
         flowContext: FlowContext,
+        vararg objectsToReset: Any,
     ) {
-        // обновляем эксп
-        exp = ExpContainer()
-        // кладем эксп в контекст, чтобы была возможность менять его по ходу выполнения графа
-        if (!flowContext.containsBeanByType(ExpContainer::class.java)) {
-            flowContext.insertObject(exp)
+        objectsToReset.forEach {
+            // текущий экземпляр - новый, который передали в initAndRun()
+            // кладем его в контекст, чтобы была возможность менять его по ходу выполнения графа
+            if (!flowContext.containsBeanByType(it::class.java)) {
+                flowContext.insertObject(it)
+            }
         }
         run(node, flowContext)
     }
@@ -78,7 +79,7 @@ class FlowBuilder {
                         async {
                             when (it) {
                                 is GeneralFetcher -> it.fetchMechanics(flowContext)
-                                is FlowNode -> if (it.condition.invoke(exp)) run(it, flowContext)
+                                is FlowNode -> if (it.condition.invoke(flowContext)) run(it, flowContext)
                             }
                         }
                     }
@@ -91,7 +92,7 @@ class FlowBuilder {
                 launch {
                     when (it) {
                         is GeneralFetcher -> it.fetchMechanics(flowContext)
-                        is FlowNode -> if (it.condition.invoke(exp)) run(it, flowContext)
+                        is FlowNode -> if (it.condition.invoke(flowContext)) run(it, flowContext)
                     }
                 }
             }

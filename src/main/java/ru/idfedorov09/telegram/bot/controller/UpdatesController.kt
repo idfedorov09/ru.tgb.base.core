@@ -1,7 +1,7 @@
 package ru.idfedorov09.telegram.bot.controller
 
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
@@ -11,11 +11,12 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot
 import org.telegram.telegrambots.meta.api.objects.Update
 import ru.idfedorov09.telegram.bot.UpdatesHandler
 import ru.idfedorov09.telegram.bot.UpdatesSender
+import ru.idfedorov09.telegram.bot.data.enums.BotStage
+import ru.idfedorov09.telegram.bot.flow.ExpContainer
 import ru.idfedorov09.telegram.bot.flow.FlowBuilder
 import ru.idfedorov09.telegram.bot.flow.FlowContext
 import ru.idfedorov09.telegram.bot.service.RedisService
 import ru.idfedorov09.telegram.bot.util.UpdatesUtil
-import java.util.concurrent.Executors
 
 @Component
 class UpdatesController : UpdatesSender(), UpdatesHandler {
@@ -40,7 +41,15 @@ class UpdatesController : UpdatesSender(), UpdatesHandler {
         redisService,
     )
 
+    /**
+     * Функция, которая возвращает то, что нужно обновить в контексте перед вызовои графа
+     */
+    private fun generateObjectToResetFlowContext() = arrayOf<Any>(
+        ExpContainer(),
+    )
+
     // @Async("infinityThread") // if u need full async execution
+    @OptIn(DelicateCoroutinesApi::class)
     override fun handle(telegramBot: TelegramLongPollingBot, update: Update) {
         // Во время каждой прогонки графа создается свой контекст,
         // в который кладется бот и само обновление
@@ -53,6 +62,7 @@ class UpdatesController : UpdatesSender(), UpdatesHandler {
         val flowJob = GlobalScope.launch {
             flowBuilder.initAndRun(
                 flowContext = flowContext,
+                objectsToReset = generateObjectToResetFlowContext(),
             )
             // TODO: подумать, что сделать с этим; возможно, это лишнее действие
             flowContext.clear()
