@@ -14,10 +14,9 @@ import ru.mephi.sno.libs.flow.fetcher.GeneralFetcher
 @Component
 class TestFetcher(
     private val updatesUtil: UpdatesUtil,
-    private val redisService: RedisService,
 ) : GeneralFetcher() {
     companion object {
-        private val log = LoggerFactory.getLogger(this.javaClass)
+        private val log = LoggerFactory.getLogger(TestFetcher::class.java)
     }
 
     @InjectData

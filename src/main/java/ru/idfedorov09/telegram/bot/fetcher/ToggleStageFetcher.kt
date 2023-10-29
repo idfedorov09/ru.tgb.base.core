@@ -13,11 +13,10 @@ import ru.mephi.sno.libs.flow.fetcher.GeneralFetcher
 
 @Component
 class ToggleStageFetcher(
-    private val updatesUtil: UpdatesUtil,
     private val redisService: RedisService,
 ) : GeneralFetcher() {
     companion object {
-        private val log = LoggerFactory.getLogger(this.javaClass)
+        private val log = LoggerFactory.getLogger(ToggleStageFetcher::class.java)
     }
 
     @InjectData

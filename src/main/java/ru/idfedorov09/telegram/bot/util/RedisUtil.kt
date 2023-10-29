@@ -5,6 +5,7 @@ import ru.idfedorov09.telegram.bot.data.model.RedisServerData
 
 object RedisUtil {
 
+    // TODO: правильно ли будет подключаться с паролем?
     fun getConnection(redisServerData: RedisServerData) = redisServerData.run {
         /*
         val config = RedisStandaloneConfiguration(host, port)
