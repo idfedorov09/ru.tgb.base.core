@@ -11,12 +11,11 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot
 import org.telegram.telegrambots.meta.api.objects.Update
 import ru.idfedorov09.telegram.bot.UpdatesHandler
 import ru.idfedorov09.telegram.bot.UpdatesSender
-import ru.idfedorov09.telegram.bot.data.enums.BotStage
 import ru.idfedorov09.telegram.bot.flow.ExpContainer
-import ru.idfedorov09.telegram.bot.flow.FlowBuilder
-import ru.idfedorov09.telegram.bot.flow.FlowContext
 import ru.idfedorov09.telegram.bot.service.RedisService
 import ru.idfedorov09.telegram.bot.util.UpdatesUtil
+import ru.mephi.sno.libs.flow.belly.FlowBuilder
+import ru.mephi.sno.libs.flow.belly.FlowContext
 
 @Component
 class UpdatesController : UpdatesSender(), UpdatesHandler {
