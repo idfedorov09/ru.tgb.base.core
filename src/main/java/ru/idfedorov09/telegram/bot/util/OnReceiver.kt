@@ -16,23 +16,16 @@ import ru.idfedorov09.telegram.bot.service.UserQueue
 import java.util.concurrent.Executors
 
 @Component
-class OnReceiver {
+class OnReceiver(
+    private val botContainer: BotContainer,
+    private val redisService: RedisService,
+    private val updatesUtil: UpdatesUtil,
+    private val userQueue: UserQueue,
+) {
 
     companion object {
         private val log = LoggerFactory.getLogger(this.javaClass)
     }
-
-    @Autowired
-    private lateinit var botContainer: BotContainer
-
-    @Autowired
-    private lateinit var redisService: RedisService
-
-    @Autowired
-    private lateinit var updatesUtil: UpdatesUtil
-
-    @Autowired
-    private lateinit var userQueue: UserQueue
 
     private val updatingRequestDispatcher = Executors.newFixedThreadPool(Int.MAX_VALUE).asCoroutineDispatcher()
 

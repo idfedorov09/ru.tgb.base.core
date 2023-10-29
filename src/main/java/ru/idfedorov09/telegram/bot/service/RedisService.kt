@@ -6,13 +6,17 @@ import org.springframework.stereotype.Service
 import redis.clients.jedis.Jedis
 import java.time.format.DateTimeFormatter
 
+/**
+ * Сервис для работы с редис.
+ * Все методы помечаем @Synchronized для избежания рейс кондишнов!
+ */
 @Service
 class RedisService @Autowired constructor(
     private var jedis: Jedis,
 ) {
 
     companion object {
-        private val log = LoggerFactory.getLogger(this.javaClass)
+        private val log = LoggerFactory.getLogger(RedisService::class.java)
         private val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
     }
 
