@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Configuration
 import ru.idfedorov09.telegram.bot.data.enums.BotStage
 import ru.idfedorov09.telegram.bot.fetcher.TestFetcher
 import ru.idfedorov09.telegram.bot.fetcher.ToggleStageFetcher
+import ru.mephi.sno.libs.flow.belly.FlowBuilder
 
 /**
  * Основной класс, в котором строится последовательность вычислений (граф)
