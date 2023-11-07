@@ -19,8 +19,6 @@ open class HealthStatusFlowConfiguration(
     }
 
     private fun FlowBuilder.buildFlow() {
-        group {
-            fetch(healthStatusMapper)
-        }
+        fetch(healthStatusMapper)
     }
 }
