@@ -1,4 +1,4 @@
-package ru.idfedorov09.telegram.bot.fetcher
+package ru.idfedorov09.telegram.bot.fetchers.bot
 
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
@@ -7,7 +7,6 @@ import ru.idfedorov09.telegram.bot.data.enums.BotStage
 import ru.idfedorov09.telegram.bot.executor.TelegramPollingBot
 import ru.idfedorov09.telegram.bot.flow.ExpContainer
 import ru.idfedorov09.telegram.bot.service.RedisService
-import ru.idfedorov09.telegram.bot.util.UpdatesUtil
 import ru.mephi.sno.libs.flow.belly.InjectData
 import ru.mephi.sno.libs.flow.fetcher.GeneralFetcher
 
