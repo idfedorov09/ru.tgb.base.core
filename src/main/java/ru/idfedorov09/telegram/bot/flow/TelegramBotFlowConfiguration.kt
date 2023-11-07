@@ -2,16 +2,17 @@ package ru.idfedorov09.telegram.bot.flow
 
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import ru.idfedorov09.telegram.bot.data.GlobalConstants.QUALIFIER_FLOW_TG_BOT
 import ru.idfedorov09.telegram.bot.data.enums.BotStage
-import ru.idfedorov09.telegram.bot.fetcher.TestFetcher
-import ru.idfedorov09.telegram.bot.fetcher.ToggleStageFetcher
+import ru.idfedorov09.telegram.bot.fetchers.bot.TestFetcher
+import ru.idfedorov09.telegram.bot.fetchers.bot.ToggleStageFetcher
 import ru.mephi.sno.libs.flow.belly.FlowBuilder
 
 /**
- * Основной класс, в котором строится последовательность вычислений (граф)
+ * Основной класс, в котором строится последовательность вычислений (граф) для бота
  */
 @Configuration
-open class FlowConfiguration(
+open class TelegramBotFlowConfiguration(
     private val testFetcher: TestFetcher,
     private val toggleStageFetcher: ToggleStageFetcher,
 ) {
@@ -19,7 +20,7 @@ open class FlowConfiguration(
     /**
      * Возвращает построенный граф; выполняется только при запуске приложения
      */
-    @Bean(name = ["flowBuilder"])
+    @Bean(QUALIFIER_FLOW_TG_BOT)
     open fun flowBuilder(): FlowBuilder {
         val flowBuilder = FlowBuilder()
         flowBuilder.buildFlow()
