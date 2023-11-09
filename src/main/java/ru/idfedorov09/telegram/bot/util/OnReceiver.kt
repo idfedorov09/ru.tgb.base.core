@@ -5,11 +5,9 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.launch
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import org.telegram.telegrambots.bots.TelegramLongPollingBot
 import org.telegram.telegrambots.meta.api.objects.Update
-import redis.clients.jedis.Jedis
 import ru.idfedorov09.telegram.bot.config.BotContainer
 import ru.idfedorov09.telegram.bot.service.RedisService
 import ru.idfedorov09.telegram.bot.service.UserQueue
@@ -24,16 +22,18 @@ class OnReceiver(
 ) {
 
     companion object {
-        private val log = LoggerFactory.getLogger(this.javaClass)
+        private val log = LoggerFactory.getLogger(OnReceiver::class.java)
     }
 
     private val updatingRequestDispatcher = Executors.newFixedThreadPool(Int.MAX_VALUE).asCoroutineDispatcher()
 
+    /** Обрабатывает отдельное обновление **/
     private fun execOne(update: Update, executor: TelegramLongPollingBot?) {
         log.info("Update received: $update")
         botContainer.updatesHandler.handle(executor, update)
     }
 
+    /** Обрабатывает пришедшее обновление, затем обрабатывая все, что есть в очереди **/
     private fun exec(update: Update, executor: TelegramLongPollingBot?) {
         val chatId = updatesUtil.getChatId(update)
 
@@ -49,13 +49,14 @@ class OnReceiver(
             execOne(update, executor)
             redisService.del(chatKey)
 
-            val upd: Update? = userQueue.popUpdate(chatId)
+            val upd = userQueue.popUpdate(chatId)
             upd?.let { onReceive(upd, executor) }
         } else {
             userQueue.push(update, chatId)
         }
     }
 
+    // TODO: убрать GlobalScope
     @OptIn(DelicateCoroutinesApi::class)
     fun onReceive(update: Update, executor: TelegramLongPollingBot?) {
         GlobalScope.launch(updatingRequestDispatcher) {

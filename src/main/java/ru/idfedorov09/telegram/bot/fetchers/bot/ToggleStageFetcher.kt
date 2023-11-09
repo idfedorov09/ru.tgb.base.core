@@ -20,8 +20,6 @@ class ToggleStageFetcher(
 
     @InjectData
     fun doFetch(
-        update: Update,
-        bot: TelegramPollingBot,
         exp: ExpContainer,
     ) {
         exp.botStage = redisService.getSafe("TEST____stageeeee").let {
