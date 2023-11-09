@@ -42,6 +42,14 @@ dependencies {
 	implementation 'com.github.sno-mephi:flow-library:1.0.5-stable'
 }
 
+jar {
+	enabled = false
+}
+
+bootJar {
+	archiveFileName = (System.getenv('BOT_APPLICATION_NAME') ?: 'bot-template-app').concat(".jar")
+}
+
 tasks.named('test') {
 	useJUnitPlatform()
 }
