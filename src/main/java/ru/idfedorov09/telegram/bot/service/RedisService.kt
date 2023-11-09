@@ -1,7 +1,6 @@
 package ru.idfedorov09.telegram.bot.service
 
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import redis.clients.jedis.Jedis
 import java.time.format.DateTimeFormatter
@@ -11,7 +10,7 @@ import java.time.format.DateTimeFormatter
  * Все методы помечаем @Synchronized для избежания рейс кондишнов!
  */
 @Service
-class RedisService @Autowired constructor(
+class RedisService(
     private var jedis: Jedis,
 ) {
 

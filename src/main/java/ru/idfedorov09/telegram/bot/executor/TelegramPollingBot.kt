@@ -2,7 +2,6 @@ package ru.idfedorov09.telegram.bot.executor
 
 import jakarta.annotation.PostConstruct
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Component
 import org.telegram.telegrambots.bots.TelegramLongPollingBot
@@ -15,29 +14,23 @@ import ru.idfedorov09.telegram.bot.util.OnReceiver
 
 @Component
 @ConditionalOnProperty(name = ["telegram.bot.interaction-method"], havingValue = "polling", matchIfMissing = true)
-class TelegramPollingBot : TelegramLongPollingBot() {
+class TelegramPollingBot(
+    private val executor: Executor,
+    private val botContainer: BotContainer,
+    private val updateReceiver: OnReceiver,
+) : TelegramLongPollingBot() {
 
     companion object {
-        private val log = LoggerFactory.getLogger(this.javaClass)
-    }
-
-    @Autowired
-    private lateinit var botContainer: BotContainer
-
-    @Autowired
-    private lateinit var updateReceiver: OnReceiver
-
-    init {
-        log.info("Polling starting..")
+        private val log = LoggerFactory.getLogger(TelegramPollingBot::class.java)
     }
 
     @PostConstruct
     fun postConstruct() {
-        log.info("ok, started.")
+        log.info("polling started.")
     }
 
     override fun onUpdateReceived(update: Update) {
-        updateReceiver.onReceive(update, this)
+        updateReceiver.onReceive(update, executor)
     }
 
     override fun getBotUsername(): String {

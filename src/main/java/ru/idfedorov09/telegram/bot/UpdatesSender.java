@@ -16,25 +16,29 @@ public class UpdatesSender {
 
     private Logger log = LoggerFactory.getLogger(this.getClass());
 
-    protected void sendUpdate(Update update, String botUrl) {
+    protected Response sendUpdate(Update update, String botWebhookUrl) {
         Gson gson = new Gson();
         String jsonUpdate = gson.toJson(update);
 
         OkHttpClient httpClient = new OkHttpClient();
-        RequestBody requestBody = RequestBody.create(jsonUpdate, okhttp3.MediaType.parse("application/json"));
+        RequestBody requestBody = RequestBody.create(
+                jsonUpdate,
+                okhttp3.MediaType.parse("application/json")
+        );
         Request request = new Request.Builder()
-                .url(botUrl)
+                .url(botWebhookUrl)
                 .post(requestBody)
                 .build();
 
         try (Response response = httpClient.newCall(request).execute()) {
-
+            return response;
         } catch (ConnectException e) {
-            log.warn(botUrl+" is offline.");
+            log.warn(botWebhookUrl+" is offline.");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
+        return null;
     }
 
     protected void exceptHandle(IOException e){
