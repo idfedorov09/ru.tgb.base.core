@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import ru.idfedorov09.telegram.bot.UpdatesHandler;
 
 @Component
-@PropertySource("application.properties")
+@PropertySource("classpath:${main-property:application}.properties")
 public class BotContainer {
 
     @Value("${telegram.bot.token}")
