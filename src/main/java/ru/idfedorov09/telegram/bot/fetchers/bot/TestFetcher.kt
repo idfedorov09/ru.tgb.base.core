@@ -14,6 +14,7 @@ import ru.mephi.sno.libs.flow.fetcher.GeneralFetcher
 @Component
 class TestFetcher(
     private val updatesUtil: UpdatesUtil,
+    private val bot: Executor,
 ) : GeneralFetcher() {
     companion object {
         private val log = LoggerFactory.getLogger(TestFetcher::class.java)
@@ -22,7 +23,6 @@ class TestFetcher(
     @InjectData
     fun doFetch(
         update: Update,
-        bot: Executor,
     ) {
         log.info("UPDATE RECEIVE: {}", update)
         bot.execute(
