@@ -20,7 +20,6 @@ class OnReceiver(
     private val userQueue: UserQueue,
     private val updatesHandler: UpdatesController,
 ) {
-
     companion object {
         private val log = LoggerFactory.getLogger(OnReceiver::class.java)
     }
