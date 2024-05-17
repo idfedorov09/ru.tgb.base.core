@@ -8,13 +8,29 @@ plugins {
 group = 'ru.idfedorov09.telegram.bot'
 version = '0.0.1-SNAPSHOT'
 
+wrapper {
+	gradleVersion = '8.2'
+}
+
 java {
-	sourceCompatibility = '17'
+	sourceCompatibility = JavaVersion.VERSION_17
+	targetCompatibility = JavaVersion.VERSION_17
+}
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+	kotlinOptions {
+		jvmTarget = "17"
+	}
 }
 
 repositories {
 	mavenCentral()
-	maven { url 'https://jitpack.io' }
+	maven {
+		url 'https://jitpack.io'
+	}
+	maven {
+		url = uri("https://plugins.gradle.org/m2/")
+	}
 }
 
 dependencies {
