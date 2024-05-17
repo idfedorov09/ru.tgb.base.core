@@ -16,13 +16,13 @@ class Executor(
         private val log = LoggerFactory.getLogger(Executor::class.java)
     }
 
-    // TODO: выполнить подключение?
     @PostConstruct
     fun postConstruct() {
         log.info("Telegram method executor created.")
     }
 
     override fun onUpdateReceived(update: Update) {}
+
     override fun getBotUsername(): String {
         return botContainer.BOT_NAME
     }

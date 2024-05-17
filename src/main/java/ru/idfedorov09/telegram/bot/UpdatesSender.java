@@ -14,7 +14,7 @@ import java.net.ConnectException;
 
 public class UpdatesSender {
 
-    private Logger log = LoggerFactory.getLogger(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     protected Response sendUpdate(Update update, String botWebhookUrl) {
         Gson gson = new Gson();
@@ -33,16 +33,11 @@ public class UpdatesSender {
         try (Response response = httpClient.newCall(request).execute()) {
             return response;
         } catch (ConnectException e) {
-            log.warn(botWebhookUrl+" is offline.");
+	        log.warn("{} is offline.", botWebhookUrl);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
         return null;
     }
-
-    protected void exceptHandle(IOException e){
-        e.printStackTrace();
-    }
-
 }
