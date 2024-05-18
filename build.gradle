@@ -1,6 +1,5 @@
 plugins {
 	id 'java'
-	id 'maven-publish'
 	id 'org.springframework.boot' version '3.1.2'
 	id 'io.spring.dependency-management' version '1.1.2'
 	id 'org.jetbrains.kotlin.jvm' version '1.9.0'
@@ -16,18 +15,6 @@ wrapper {
 java {
 	sourceCompatibility = JavaVersion.VERSION_17
 	targetCompatibility = JavaVersion.VERSION_17
-
-	toolchain {
-		languageVersion = JavaLanguageVersion.of(17)
-	}
-	withSourcesJar()
-	withJavadocJar()
-}
-
-kotlin {
-	jvmToolchain {
-		languageVersion = JavaLanguageVersion.of(17)
-	}
 }
 
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
@@ -38,21 +25,17 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
 
 repositories {
 	mavenCentral()
-	maven {
-		url 'https://jitpack.io'
-	}
 }
 
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-	implementation 'org.postgresql:postgresql:42.7.2'
-	implementation 'org.hibernate:hibernate-core:6.2.5.Final'
-	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 
-	implementation 'redis.clients:jedis:5.1.1'
+	implementation 'org.postgresql:postgresql:42.7.2'
+	implementation 'org.hibernate:hibernate-core:6.2.5.Final'
 
+	implementation 'redis.clients:jedis:5.1.1'
 
 	implementation 'com.google.code.gson:gson:2.10.1'
 	implementation 'org.telegram:telegrambots:6.7.0'
@@ -60,8 +43,6 @@ dependencies {
 	implementation 'org.telegram:telegrambots-spring-boot-starter:6.7.0'
 	implementation 'org.apache.commons:commons-lang3:3.13.0'
 
-
-	//Kotlin
 	implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3'
 	implementation "org.jetbrains.kotlin:kotlin-reflect:1.9.10"
 
@@ -76,14 +57,6 @@ jar {
 
 bootJar {
 	archiveFileName = (System.getenv('BOT_APPLICATION_NAME') ?: 'bot-template-app').concat(".jar")
-}
-
-publishing {
-	publications {
-		maven(MavenPublication) {
-			from components.java
-		}
-	}
 }
 
 // TODO: tests
