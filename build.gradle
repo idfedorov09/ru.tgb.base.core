@@ -16,6 +16,18 @@ wrapper {
 java {
 	sourceCompatibility = JavaVersion.VERSION_17
 	targetCompatibility = JavaVersion.VERSION_17
+
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(17)
+	}
+	withSourcesJar()
+	withJavadocJar()
+}
+
+kotlin {
+	jvmToolchain {
+		languageVersion = JavaLanguageVersion.of(17)
+	}
 }
 
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
