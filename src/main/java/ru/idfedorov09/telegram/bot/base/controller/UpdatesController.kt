@@ -8,6 +8,7 @@ import org.telegram.telegrambots.meta.api.objects.Update
 import ru.idfedorov09.telegram.bot.base.UpdatesHandler
 import ru.idfedorov09.telegram.bot.base.UpdatesSender
 import ru.idfedorov09.telegram.bot.base.data.GlobalConstants.QUALIFIER_SYSTEM_FLOW
+import ru.idfedorov09.telegram.bot.base.data.enum.TextCommands
 import ru.idfedorov09.telegram.bot.base.service.FlowBuilderService
 import ru.mephi.sno.libs.flow.belly.FlowContext
 
@@ -28,7 +29,16 @@ class UpdatesController(
         )
 
         startSystemFlow(params)
-        startSelectedFlow(params)
+        if (shouldStartSelectedFlow(params)) startSelectedFlow(params)
+    }
+
+    private fun shouldStartSelectedFlow(params: Params): Boolean {
+        val update = params.update
+
+        if (update.hasMessage() && update.message.hasText() && TextCommands.isTextCommand(update.message.text))
+            return false
+
+        return flowBuilderService.isFlowSelected()
     }
 
     private fun startSystemFlow(params: Params) = startFlowByName(QUALIFIER_SYSTEM_FLOW, params)

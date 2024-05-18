@@ -5,5 +5,5 @@ object GlobalConstants {
 
     const val QUALIFIER_SYSTEM_FLOW = "System flow"
     const val QUEUE_PRE_PREFIX = "frjekcs_ewer_idfed09_user_bot_que_"
-    const val CURRENT_FLOW_PREFIX = "current_flow"
+    const val CURRENT_FLOW = "current_flow"
 }
