@@ -5,7 +5,9 @@ import org.springframework.stereotype.Component
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage
 import org.telegram.telegrambots.meta.api.objects.Update
 import ru.idfedorov09.telegram.bot.base.executor.Executor
+import ru.idfedorov09.telegram.bot.base.service.FlowBuilderService
 import ru.idfedorov09.telegram.bot.base.util.UpdatesUtil
+import ru.mephi.sno.libs.flow.belly.FlowBuilder
 import ru.mephi.sno.libs.flow.belly.InjectData
 import ru.mephi.sno.libs.flow.fetcher.GeneralFetcher
 
@@ -13,22 +15,19 @@ import ru.mephi.sno.libs.flow.fetcher.GeneralFetcher
 class TestFetcher(
     private val updatesUtil: UpdatesUtil,
     private val bot: Executor,
+    private val flowBuilderService: FlowBuilderService,
 ) : GeneralFetcher() {
-
-    companion object {
-        private val log = LoggerFactory.getLogger(TestFetcher::class.java)
-    }
 
     @InjectData
     fun doFetch(
         update: Update,
     ) {
-        log.info("UPDATE RECEIVE: {}", update)
+        val flowMap = flowBuilderService.getFlowBuilders()
         bot.execute(
-            SendMessage(
-                updatesUtil.getChatId(update)!!,
-                "ok!!",
-            ),
+            SendMessage().also {
+                it.text = "Мапа:\n$flowMap"
+                it.chatId = updatesUtil.getChatId(update)!!
+            }
         )
     }
 }

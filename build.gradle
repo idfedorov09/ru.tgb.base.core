@@ -50,15 +50,6 @@ dependencies {
 	}
 }
 
-jar {
-	enabled = false
-}
-
 bootJar {
 	archiveFileName = (System.getenv('BOT_APPLICATION_NAME') ?: 'bot-template-app').concat(".jar")
-}
-
-// TODO: tests
-tasks.named('test') {
-	useJUnitPlatform()
 }

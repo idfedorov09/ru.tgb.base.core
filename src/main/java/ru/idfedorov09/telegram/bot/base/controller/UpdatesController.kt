@@ -8,8 +8,7 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot
 import org.telegram.telegrambots.meta.api.objects.Update
 import ru.idfedorov09.telegram.bot.base.UpdatesHandler
 import ru.idfedorov09.telegram.bot.base.UpdatesSender
-import ru.idfedorov09.telegram.bot.base.data.GlobalConstants.QUALIFIER_FLOW_TG_BOT
-import ru.idfedorov09.telegram.bot.base.flow.ExpContainer
+import ru.idfedorov09.telegram.bot.base.data.GlobalConstants.QUALIFIER_FLOW_SELECT_FLOW
 import ru.mephi.sno.libs.flow.belly.FlowBuilder
 import ru.mephi.sno.libs.flow.belly.FlowContext
 
@@ -17,7 +16,7 @@ import ru.mephi.sno.libs.flow.belly.FlowContext
 class UpdatesController : UpdatesSender(), UpdatesHandler {
 
     @Autowired
-    @Qualifier(QUALIFIER_FLOW_TG_BOT)
+    @Qualifier(QUALIFIER_FLOW_SELECT_FLOW)
     private lateinit var flowBuilder: FlowBuilder
 
     // @Async("infinityThread") // if u need full async execution
@@ -31,7 +30,6 @@ class UpdatesController : UpdatesSender(), UpdatesHandler {
             flowContext = flowContext,
             dispatcher = Dispatchers.Default,
             wait = true,
-            ExpContainer(), // экспы
             telegramBot,
             update,
         )
