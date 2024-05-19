@@ -2,37 +2,49 @@ package ru.idfedorov09.telegram.bot.base.controller
 
 import kotlinx.coroutines.Dispatchers
 import org.slf4j.LoggerFactory
-import org.springframework.stereotype.Component
+import org.springframework.beans.factory.annotation.Autowired
 import org.telegram.telegrambots.bots.TelegramLongPollingBot
 import org.telegram.telegrambots.meta.api.objects.Update
 import ru.idfedorov09.telegram.bot.base.UpdatesHandler
 import ru.idfedorov09.telegram.bot.base.UpdatesSender
 import ru.idfedorov09.telegram.bot.base.data.GlobalConstants.QUALIFIER_SYSTEM_FLOW
 import ru.idfedorov09.telegram.bot.base.data.enum.TextCommands
+import ru.idfedorov09.telegram.bot.base.data.model.UpdateControllerParams
 import ru.idfedorov09.telegram.bot.base.service.FlowBuilderService
 import ru.mephi.sno.libs.flow.belly.FlowContext
 
-@Component
 class UpdatesController(
-    private val flowBuilderService: FlowBuilderService,
+    private val flowBuilderService: FlowBuilderService
 ) : UpdatesSender(), UpdatesHandler {
 
     companion object {
         private val log = LoggerFactory.getLogger(UpdatesController::class.java)
     }
 
+    private var hasAccessToSystemFlowAction: UpdatesController.(UpdateControllerParams) -> Boolean = { true }
+
     // @Async("infinityThread") // if u need full async execution
+    // TODO: конфигурация запуска
     override fun handle(telegramBot: TelegramLongPollingBot, update: Update) {
-        val params = Params(
+        val params = UpdateControllerParams(
             telegramBot = telegramBot,
             update = update,
         )
 
-        startSystemFlow(params)
-        if (shouldStartSelectedFlow(params)) startSelectedFlow(params)
+        if (hasAccessToSystemFlow(params))
+            startSystemFlow(params)
+
+        if (shouldStartSelectedFlow(params))
+            startSelectedFlow(params)
     }
 
-    private fun shouldStartSelectedFlow(params: Params): Boolean {
+    private fun hasAccessToSystemFlow(params: UpdateControllerParams): Boolean = hasAccessToSystemFlowAction(params)
+
+    fun setHasAccessToSystemFlow(hasAccessToSystemFlow: UpdatesController.(UpdateControllerParams) -> Boolean) {
+        hasAccessToSystemFlowAction = hasAccessToSystemFlow
+    }
+
+    private fun shouldStartSelectedFlow(params: UpdateControllerParams): Boolean {
         val update = params.update
 
         if (update.hasMessage() && update.message.hasText() && TextCommands.isTextCommand(update.message.text))
@@ -41,9 +53,9 @@ class UpdatesController(
         return flowBuilderService.isFlowSelected()
     }
 
-    private fun startSystemFlow(params: Params) = startFlowByName(QUALIFIER_SYSTEM_FLOW, params)
+    private fun startSystemFlow(params: UpdateControllerParams) = startFlowByName(QUALIFIER_SYSTEM_FLOW, params)
 
-    private fun startSelectedFlow(params: Params) {
+    private fun startSelectedFlow(params: UpdateControllerParams) {
         val currentFlowName = flowBuilderService.getCurrentFlowName() ?: run {
             log.warn("Flow is not selected.")
             return
@@ -52,7 +64,7 @@ class UpdatesController(
         startFlowByName(currentFlowName, params)
     }
 
-    private fun startFlowByName(name: String, params: Params) {
+    private fun startFlowByName(name: String, params: UpdateControllerParams) {
         val flowBuilder = flowBuilderService.getByName(name) ?: run {
             log.error("Flow with name $name not found.")
             return
@@ -71,9 +83,4 @@ class UpdatesController(
             params.update,
         )
     }
-
-    private data class Params(
-        val telegramBot: TelegramLongPollingBot,
-        val update: Update,
-    )
 }
