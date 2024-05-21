@@ -52,4 +52,5 @@ dependencies {
 
 bootJar {
 	archiveFileName = (System.getenv('BOT_APPLICATION_NAME') ?: 'bot-template-app').concat(".jar")
+	enabled = false
 }
