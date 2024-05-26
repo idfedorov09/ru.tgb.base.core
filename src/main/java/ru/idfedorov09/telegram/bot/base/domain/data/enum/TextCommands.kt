@@ -1,4 +1,4 @@
-package ru.idfedorov09.telegram.bot.base.data.enum
+package ru.idfedorov09.telegram.bot.base.domain.data.enum
 
 enum class TextCommands(
     /** текст команды **/

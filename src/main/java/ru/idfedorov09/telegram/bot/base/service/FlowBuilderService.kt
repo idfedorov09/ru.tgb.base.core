@@ -3,37 +3,28 @@ package ru.idfedorov09.telegram.bot.base.service
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import ru.idfedorov09.telegram.bot.base.controller.UpdatesController
-import ru.idfedorov09.telegram.bot.base.data.GlobalConstants.CURRENT_FLOW
-import ru.idfedorov09.telegram.bot.base.data.GlobalConstants.QUALIFIER_SYSTEM_FLOW
+import ru.idfedorov09.telegram.bot.base.domain.GlobalConstants.CURRENT_FLOW
+import ru.idfedorov09.telegram.bot.base.flow.SystemTgFlowConfiguration
 import ru.mephi.sno.libs.flow.belly.FlowBuilder
+import ru.mephi.sno.libs.flow.registry.FlowRegistry
 
 @Service
 class FlowBuilderService(
     private val redisService: RedisService,
 ) {
-    private val flowBuilderMap = HashMap<String, FlowBuilder>()
-
     companion object {
         private val log = LoggerFactory.getLogger(UpdatesController::class.java)
+        private val flowRegistry = FlowRegistry.getInstance()
     }
 
-    fun register(name: String, flowBuilder: FlowBuilder) {
-        if (flowBuilderMap.contains(name))
-            throw IllegalStateException("Flow already registered: $name")
+    fun getByName(name: String): FlowBuilder = flowRegistry.getFlow(name)
 
-        flowBuilderMap[name] = flowBuilder
-    }
-
-    fun getByName(name: String) = flowBuilderMap[name]
-
-    fun getFlowBuilders() = flowBuilderMap
+    fun getFlowBuilders(): List<String> = flowRegistry.flowNames
 
     fun getCurrentFlowName() = redisService.getSafe(CURRENT_FLOW)
 
-    fun getCurrentFlow() = flowBuilderMap[getCurrentFlowName()]
-
     fun setSelectedFlow(name: String): Boolean{
-        if (!flowBuilderMap.contains(name)) {
+        if (!getFlowBuilders().contains(name)) {
             log.warn("Flow doesn't exist: $name")
             return false
         }
@@ -41,5 +32,7 @@ class FlowBuilderService(
         return true
     }
 
-    fun isFlowSelected() = !(getCurrentFlowName() == null || getCurrentFlowName() == QUALIFIER_SYSTEM_FLOW)
+    fun isFlowSelected() = !(getCurrentFlowName() == null || getCurrentFlowName() == getSystemFlowName())
+
+    fun getSystemFlowName(): String = flowRegistry.getFlowName(SystemTgFlowConfiguration::class.java)
 }

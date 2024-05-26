@@ -2,14 +2,12 @@ package ru.idfedorov09.telegram.bot.base.controller
 
 import kotlinx.coroutines.Dispatchers
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Autowired
 import org.telegram.telegrambots.bots.TelegramLongPollingBot
 import org.telegram.telegrambots.meta.api.objects.Update
 import ru.idfedorov09.telegram.bot.base.UpdatesHandler
 import ru.idfedorov09.telegram.bot.base.UpdatesSender
-import ru.idfedorov09.telegram.bot.base.data.GlobalConstants.QUALIFIER_SYSTEM_FLOW
-import ru.idfedorov09.telegram.bot.base.data.enum.TextCommands
-import ru.idfedorov09.telegram.bot.base.data.model.UpdateControllerParams
+import ru.idfedorov09.telegram.bot.base.domain.data.enum.TextCommands
+import ru.idfedorov09.telegram.bot.base.domain.data.model.util.UpdateControllerParams
 import ru.idfedorov09.telegram.bot.base.service.FlowBuilderService
 import ru.mephi.sno.libs.flow.belly.FlowContext
 
@@ -53,7 +51,8 @@ class UpdatesController(
         return flowBuilderService.isFlowSelected()
     }
 
-    private fun startSystemFlow(params: UpdateControllerParams) = startFlowByName(QUALIFIER_SYSTEM_FLOW, params)
+    private fun startSystemFlow(params: UpdateControllerParams) =
+        startFlowByName(flowBuilderService.getSystemFlowName(), params)
 
     private fun startSelectedFlow(params: UpdateControllerParams) {
         val currentFlowName = flowBuilderService.getCurrentFlowName() ?: run {

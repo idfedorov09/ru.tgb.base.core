@@ -1,4 +1,4 @@
-package ru.idfedorov09.telegram.bot.base.data
+package ru.idfedorov09.telegram.bot.base.domain
 
 object GlobalConstants {
     const val WEBHOOK_PATH = "/"
