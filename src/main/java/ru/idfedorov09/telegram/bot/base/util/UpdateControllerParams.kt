@@ -1,4 +1,4 @@
-package ru.idfedorov09.telegram.bot.base.domain.data.model.util
+package ru.idfedorov09.telegram.bot.base.util
 
 import org.telegram.telegrambots.bots.TelegramLongPollingBot
 import org.telegram.telegrambots.meta.api.objects.Update

@@ -6,11 +6,12 @@ import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage
 import org.telegram.telegrambots.meta.api.objects.Update
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton
-import ru.idfedorov09.telegram.bot.base.domain.data.enum.TextCommands
-import ru.idfedorov09.telegram.bot.base.domain.data.model.entity.CallbackData
+import ru.idfedorov09.telegram.bot.base.domain.Commands
+import ru.idfedorov09.telegram.bot.base.domain.GlobalConstants
+import ru.idfedorov09.telegram.bot.base.domain.dto.CallbackDataDTO
 import ru.idfedorov09.telegram.bot.base.domain.service.CallbackDataService
 import ru.idfedorov09.telegram.bot.base.executor.Executor
-import ru.idfedorov09.telegram.bot.base.service.FlowBuilderService
+import ru.idfedorov09.telegram.bot.base.domain.service.FlowBuilderService
 import ru.idfedorov09.telegram.bot.base.util.UpdatesUtil
 import ru.mephi.sno.libs.flow.belly.InjectData
 import ru.mephi.sno.libs.flow.fetcher.GeneralFetcher
@@ -55,7 +56,7 @@ class ChooseFlowFetcher(
 
         return text.run {
             when {
-                startsWith(TextCommands.CHANGE_FLOW_COMMAND()) -> changeFlow(update)
+                startsWith(Commands.CHANGE_FLOW_COMMAND()) -> changeFlow(update)
                 else -> commonTextHandler(update)
             }
         }
@@ -90,7 +91,7 @@ class ChooseFlowFetcher(
         )
     }
 
-    private fun selectFlow(update: Update, callbackData: CallbackData, forced: Boolean) {
+    private fun selectFlow(update: Update, callbackData: CallbackDataDTO, forced: Boolean) {
         if (!forced && flowBuilderService.isFlowSelected()) {
             bot.execute(
                 DeleteMessage().apply {
@@ -137,7 +138,7 @@ class ChooseFlowFetcher(
 
     private fun flowSelectKeyboard(prefix: String = selectFlowCallbackPrefix): InlineKeyboardMarkup {
         val flowBuildersList = flowBuilderService.getFlowBuilders().map {
-            val cb = CallbackData(
+            val cb = CallbackDataDTO(
                 metaText = it,
                 callbackData = "$prefix$it"
             )
@@ -146,9 +147,9 @@ class ChooseFlowFetcher(
         return createKeyboard(*flowBuildersList.toTypedArray())
     }
 
-    private fun createKeyboard(vararg callbackData: CallbackData): InlineKeyboardMarkup {
+    private fun createKeyboard(vararg callbackData: CallbackDataDTO?): InlineKeyboardMarkup {
         val keyboard =
-            listOf(*callbackData)
+            listOfNotNull(*callbackData)
                 .map { button -> button.createKeyboard() }
                 .map { listOf(it) }
         return createKeyboard(keyboard)

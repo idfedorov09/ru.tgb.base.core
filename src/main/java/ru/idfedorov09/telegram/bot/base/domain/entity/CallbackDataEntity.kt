@@ -1,4 +1,4 @@
-package ru.idfedorov09.telegram.bot.base.domain.data.model.entity
+package ru.idfedorov09.telegram.bot.base.domain.entity
 
 import jakarta.persistence.Column
 import jakarta.persistence.DiscriminatorColumn
@@ -9,16 +9,16 @@ import jakarta.persistence.Id
 import jakarta.persistence.Inheritance
 import jakarta.persistence.InheritanceType
 import jakarta.persistence.Table
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton
+import ru.idfedorov09.telegram.bot.base.domain.dto.CallbackDataDTO
 
 @Entity
 @Table(name = "callback_data")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "class_type", columnDefinition = "TEXT")
-open class CallbackData(
+open class CallbackDataEntity(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
+    @Column(name = "callback_id")
     val id: Long? = null,
     /** id сообщения кнопки **/
     @Column(name = "chat_id")
@@ -35,13 +35,4 @@ open class CallbackData(
     /** url под кнопкой **/
     @Column(name = "url", columnDefinition = "TEXT")
     open val metaUrl: String? = null,
-) {
-    /**
-     * Создает кнопку, которуж можно добавить в клавиатуру и отправить пользователю
-     */
-    fun createKeyboard() = InlineKeyboardButton().also {
-        it.text = metaText!!
-        it.callbackData = id!!.toString()
-        it.url = metaUrl
-    }
-}
+): BaseEntity<CallbackDataDTO, CallbackDataEntity>()

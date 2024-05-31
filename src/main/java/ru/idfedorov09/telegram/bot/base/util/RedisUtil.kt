@@ -1,7 +1,7 @@
 package ru.idfedorov09.telegram.bot.base.util
 
 import redis.clients.jedis.Jedis
-import ru.idfedorov09.telegram.bot.base.domain.data.model.util.RedisServerData
+import ru.idfedorov09.telegram.bot.base.util.RedisServerData
 
 object RedisUtil {
     fun getConnection(redisServerData: RedisServerData) = redisServerData.run {

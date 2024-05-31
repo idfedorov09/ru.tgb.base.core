@@ -6,9 +6,9 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot
 import org.telegram.telegrambots.meta.api.objects.Update
 import ru.idfedorov09.telegram.bot.base.UpdatesHandler
 import ru.idfedorov09.telegram.bot.base.UpdatesSender
-import ru.idfedorov09.telegram.bot.base.domain.data.enum.TextCommands
-import ru.idfedorov09.telegram.bot.base.domain.data.model.util.UpdateControllerParams
-import ru.idfedorov09.telegram.bot.base.service.FlowBuilderService
+import ru.idfedorov09.telegram.bot.base.config.registry.TextCommand
+import ru.idfedorov09.telegram.bot.base.util.UpdateControllerParams
+import ru.idfedorov09.telegram.bot.base.domain.service.FlowBuilderService
 import ru.mephi.sno.libs.flow.belly.FlowContext
 
 class UpdatesController(
@@ -45,7 +45,7 @@ class UpdatesController(
     private fun shouldStartSelectedFlow(params: UpdateControllerParams): Boolean {
         val update = params.update
 
-        if (update.hasMessage() && update.message.hasText() && TextCommands.isTextCommand(update.message.text))
+        if (update.hasMessage() && update.message.hasText() && TextCommand.isTextCommand(update.message.text))
             return false
 
         return flowBuilderService.isFlowSelected()
