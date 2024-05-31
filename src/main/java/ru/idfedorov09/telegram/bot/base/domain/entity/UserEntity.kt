@@ -13,8 +13,10 @@ import jakarta.persistence.Inheritance
 import jakarta.persistence.InheritanceType
 import jakarta.persistence.Table
 import ru.idfedorov09.telegram.bot.base.config.registry.LastUserActionType
+import ru.idfedorov09.telegram.bot.base.config.registry.ReplyKeyboardType
 import ru.idfedorov09.telegram.bot.base.config.registry.UserRole
 import ru.idfedorov09.telegram.bot.base.domain.converter.LastUserActionTypeConverter
+import ru.idfedorov09.telegram.bot.base.domain.converter.UserKeyboardTypeConverter
 import ru.idfedorov09.telegram.bot.base.domain.converter.UserRoleConverter
 import ru.idfedorov09.telegram.bot.base.domain.dto.UserDTO
 
@@ -54,5 +56,14 @@ open class UserEntity(
     /** метка soft-delete **/
     @Column(name = "is_deleted")
     val isDeleted: Boolean = false,
+
+    /** тип текущей реплай клавиатуры **/
+    @Column(name = "current_keyboard_type", columnDefinition = "TEXT", updatable = false)
+    @Convert(converter = UserKeyboardTypeConverter::class)
+    val currentKeyboardType: ReplyKeyboardType? = null,
+
+    /** Было ли выполнено переключение клавиатуры на новую **/
+    @Column(name = "is_keyboard_switched", updatable = false)
+    val isKeyboardSwitched: Boolean = false,
 
 ): BaseEntity<UserDTO, UserEntity>()

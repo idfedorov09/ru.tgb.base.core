@@ -13,6 +13,6 @@ class Registry<T : RegistryModel> {
         log.debug("Model registered successfully: {}", model)
     }
 
-    fun get(mark: String): T? = modelMap[mark]
+    fun get(mark: String?): T? = mark?.let { modelMap[mark] }
     fun getAll(): List<T> = modelMap.values.toList()
 }

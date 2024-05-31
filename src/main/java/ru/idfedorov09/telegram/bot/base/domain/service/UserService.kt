@@ -16,4 +16,11 @@ class UserService {
     // TODO: сохранить с учетом userData
     open fun save(userEntity: UserEntity): UserEntity? = null
 
+    open fun findNotDeletedByTui(tui: String) =
+        userRepository.findNotDeletedByTui(tui)?.mapper()?.toDTO()
+
+    open fun updateKeyboardSwitchedForUserTui(
+        tui: String,
+        isSwitched: Boolean,
+    ) = userRepository.updateKeyboardSwitchedForUserTui(tui, isSwitched)
 }
