@@ -32,38 +32,38 @@ open class UserEntity(
 
     /** id юзера в телеграме **/
     @Column(name = "tui")
-    open val tui: String? = null,
+    open var tui: String? = null,
 
     /** последний сохраненный ник в телеге **/
     @Column(name = "last_tg_nick")
-    open val lastTgNick: String? = null,
+    open var lastTgNick: String? = null,
 
     /** роли пользователя **/
     @ElementCollection
     @CollectionTable(name="user_roles")
     @Convert(converter = UserRoleConverter::class)
-    open val roles: Set<UserRole> = mutableSetOf(),
+    open var roles: Set<UserRole> = mutableSetOf(),
 
     /** тип предыдущего действия пользователя **/
     @Column(name = "last_action_type", columnDefinition = "TEXT")
     @Convert(converter = LastUserActionTypeConverter::class)
-    val lastUserActionType: LastUserActionType? = null,
+    var lastUserActionType: LastUserActionType? = null,
 
     /** поле для временных данных юзера **/
     @Column(name = "user_data", columnDefinition = "TEXT")
-    val data: String? = null,
+    var data: String? = null,
 
     /** метка soft-delete **/
     @Column(name = "is_deleted")
-    val isDeleted: Boolean = false,
+    var isDeleted: Boolean = false,
 
     /** тип текущей реплай клавиатуры **/
     @Column(name = "current_keyboard_type", columnDefinition = "TEXT", updatable = false)
     @Convert(converter = UserKeyboardTypeConverter::class)
-    val currentKeyboardType: ReplyKeyboardType? = null,
+    var currentKeyboardType: ReplyKeyboardType? = null,
 
     /** Было ли выполнено переключение клавиатуры на новую **/
     @Column(name = "is_keyboard_switched", updatable = false)
-    val isKeyboardSwitched: Boolean = false,
+    var isKeyboardSwitched: Boolean = false,
 
 ): BaseEntity<UserDTO, UserEntity>()

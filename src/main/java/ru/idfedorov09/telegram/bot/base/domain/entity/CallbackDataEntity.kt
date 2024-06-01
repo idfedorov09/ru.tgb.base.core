@@ -22,17 +22,17 @@ open class CallbackDataEntity(
     val id: Long? = null,
     /** id сообщения кнопки **/
     @Column(name = "chat_id")
-    open val chatId: String? = null,
+    open var chatId: String? = null,
     /** чат, в котором эта кнопка находится **/
     @Column(name = "message_id")
-    open val messageId: String? = null,
+    open var messageId: String? = null,
     /** информация, хранящаяся в коллбеке **/
     @Column(name = "data", columnDefinition = "TEXT")
-    open val callbackData: String? = null,
+    open var callbackData: String? = null,
     /** Текст на кнопке**/
     @Column(name = "text", columnDefinition = "TEXT")
-    open val metaText: String? = null,
+    open var metaText: String? = null,
     /** url под кнопкой **/
     @Column(name = "url", columnDefinition = "TEXT")
-    open val metaUrl: String? = null,
+    open var metaUrl: String? = null,
 ): BaseEntity<CallbackDataDTO, CallbackDataEntity>()
