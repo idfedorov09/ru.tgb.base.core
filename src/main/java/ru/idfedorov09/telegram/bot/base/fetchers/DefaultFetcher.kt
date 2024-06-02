@@ -26,7 +26,7 @@ import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.hasAnnotation
 
 @Component
-class DefaultFetcher : GeneralFetcher() {
+open class DefaultFetcher : GeneralFetcher() {
     private lateinit var flowContext: FlowContext
 
     @Autowired
