@@ -8,14 +8,22 @@ import ru.idfedorov09.telegram.bot.base.config.FetcherConfigContainer
 import ru.idfedorov09.telegram.bot.base.config.registry.RegistryHolder
 import ru.idfedorov09.telegram.bot.base.config.registry.UserRole
 import ru.idfedorov09.telegram.bot.base.domain.Roles
+import ru.idfedorov09.telegram.bot.base.domain.annotation.Callback
+import ru.idfedorov09.telegram.bot.base.domain.annotation.CallbackDefault
+import ru.idfedorov09.telegram.bot.base.domain.annotation.Command
 import ru.idfedorov09.telegram.bot.base.domain.annotation.FetcherPerms
+import ru.idfedorov09.telegram.bot.base.domain.annotation.InputText
+import ru.idfedorov09.telegram.bot.base.domain.annotation.InputTextDefault
 import ru.idfedorov09.telegram.bot.base.domain.dto.UserDTO
+import ru.idfedorov09.telegram.bot.base.domain.service.CallbackDataService
 import ru.idfedorov09.telegram.bot.base.domain.service.MessageSenderService
 import ru.idfedorov09.telegram.bot.base.util.MessageParams
 import ru.mephi.sno.libs.flow.belly.FlowContext
 import ru.mephi.sno.libs.flow.fetcher.GeneralFetcher
 import kotlin.reflect.KFunction
+import kotlin.reflect.full.declaredMemberFunctions
 import kotlin.reflect.full.findAnnotation
+import kotlin.reflect.full.hasAnnotation
 
 @Component
 class DefaultFetcher : GeneralFetcher() {
@@ -23,6 +31,8 @@ class DefaultFetcher : GeneralFetcher() {
 
     @Autowired
     private lateinit var messageSenderService: MessageSenderService
+    @Autowired
+    private lateinit var callbackDataService: CallbackDataService
 
     companion object {
         private val log = LoggerFactory.getLogger(DefaultFetcher::class.java)
@@ -41,7 +51,10 @@ class DefaultFetcher : GeneralFetcher() {
         if (!isValidPerms(flowContext, doFetchMethod)) return null
 
         return runCatching {
-            super.fetchCall(flowContext, doFetchMethod, params)
+            super.fetchCall(flowContext, doFetchMethod, params).also {
+                // всегда ли нужно handle() ?
+                handle()
+            }
         }.onFailure { e ->
             log.error("ERROR: $e")
             log.debug(e.stackTraceToString())
@@ -49,11 +62,117 @@ class DefaultFetcher : GeneralFetcher() {
         }.getOrNull()
     }
 
+    /**
+     * Вызывает методы-обработчики
+     */
+
+    // TODO : wrapper pattern + create ticket
+    fun handle() {
+        val update = flowContext.get<Update>() ?: run {
+            log.warn("Can't handle update: there's no update in the context.")
+            return
+        }
+        when {
+            update.hasMessage() && update.message.hasText() -> textCommandsHandler(update)
+            update.hasCallbackQuery() -> callbackQueryHandler(update)
+        }
+    }
+
+    private fun callbackQueryHandler(update: Update) {
+        val callbackId = update.callbackQuery.data?.toLongOrNull()
+        callbackId ?: return
+        val callbackData = callbackDataService.findById(callbackId)?.callbackData ?: return
+
+        val commandMethods = this::class
+            .declaredMemberFunctions
+            .filter { it.hasAnnotation<Callback>() }
+
+        val okCommandMethods = commandMethods.filter {
+            it.findAnnotation<Callback>()?.let { cb -> cb.mark == callbackData } ?: false
+        }
+
+        if (okCommandMethods.size > 1)
+            throw IllegalStateException("Too many matching commands in the fetcher. Check for prefix collisions.")
+
+        if (okCommandMethods.size == 1) {
+            val method = okCommandMethods.first()
+            methodCall(method)
+        }
+        else {
+            val defaultMethods = this::class
+                .declaredMemberFunctions
+                .filter { it.hasAnnotation<CallbackDefault>() }
+            if (defaultMethods.size > 1)
+                throw IllegalStateException("Too many matching default text-handlers in the fetcher.")
+            if (defaultMethods.size == 1)
+                methodCall(defaultMethods.first())
+        }
+    }
+
+    private fun textCommandsHandler(update: Update) {
+        val command = update.message.text.trim()
+
+        val commandMethods = this::class
+            .declaredMemberFunctions
+            .filter { it.hasAnnotation<Command>() }
+
+        val okCommandMethods = commandMethods.filter {
+            it.findAnnotation<Command>()?.let { cmd -> command.startsWith(cmd.command) } ?: false
+        }
+
+        if (okCommandMethods.size > 1)
+            throw IllegalStateException("Too many matching commands in the fetcher. Check for prefix collisions.")
+
+        if (okCommandMethods.size == 1) {
+            val method = okCommandMethods.first()
+            methodCall(method)
+        }
+        else {
+            // like an 'else' branch
+            commonTextHandler(update)
+        }
+    }
+
+    private fun commonTextHandler(update: Update) {
+        val luatMark = flowContext.get<UserDTO>()?.lastUserActionType?.mark ?: return
+
+        val methods = this::class
+            .declaredMemberFunctions
+            .filter { it.hasAnnotation<InputText>() }
+
+        val okMethods = methods.filter {
+            it.findAnnotation<InputText>()?.let { luat -> luatMark == luat.lastUserActionTypeMark } ?: false
+        }
+
+        if (okMethods.size > 1)
+            throw IllegalStateException("Too many matching text-handlers in the fetcher. Check for the collisions.")
+
+        if (okMethods.size == 1) {
+            val method = okMethods.first()
+            methodCall(method)
+        } else {
+            val defaultMethods = this::class
+                .declaredMemberFunctions
+                .filter { it.hasAnnotation<InputTextDefault>() }
+            if (defaultMethods.size > 1)
+                throw IllegalStateException("Too many matching default text-handlers in the fetcher.")
+            if (defaultMethods.size == 1)
+                methodCall(defaultMethods.first())
+        }
+    }
+
+    private fun methodCall(method: KFunction<*>) {
+        if (!isValidPerms(flowContext, method)) return
+        val params = getParamsFromFlow(method, flowContext)
+        val result = method.call(this, *params.toTypedArray())
+        flowContext.insertObject(result)
+    }
+
     private fun isValidPerms(
         flowContext: FlowContext,
-        doFetchMethod: KFunction<*>,
+        method: KFunction<*>,
     ): Boolean {
-        val fetcherPermsAnnotation = doFetchMethod.findAnnotation<FetcherPerms>() ?: return true
+        val fetcherPermsAnnotation = method.findAnnotation<FetcherPerms>() ?: return true
         val user = flowContext.get<UserDTO>() ?: return true
         if (Roles.ROOT in user.roles) return true
         val allowPerms = fetcherPermsAnnotation.roles.map { RegistryHolder.getRegistry<UserRole>().get(it) }

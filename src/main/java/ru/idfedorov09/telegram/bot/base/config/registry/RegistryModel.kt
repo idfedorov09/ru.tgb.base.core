@@ -15,4 +15,6 @@ abstract class RegistryModel(
     }
 
     internal fun getRegistryClass(): KClass<out RegistryModel> = origin
+
+    operator fun invoke() = mark
 }

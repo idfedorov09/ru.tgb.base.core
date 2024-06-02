@@ -48,7 +48,7 @@ dependencies {
 	implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3'
 	implementation "org.jetbrains.kotlin:kotlin-reflect:1.9.10"
 
-	implementation('com.github.sno-mephi:flow-library:2.2.1-stable')
+	implementation('com.github.sno-mephi:flow-library:2.2.2-stable')
 }
 
 bootJar {

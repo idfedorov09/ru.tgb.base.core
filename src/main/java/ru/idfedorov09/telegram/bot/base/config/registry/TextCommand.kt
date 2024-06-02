@@ -30,6 +30,4 @@ data class TextCommand(
 
     fun hasAccess(user: UserDTO) = hasAccess(user.roles)
     fun hasAccess(userEntity: UserEntity) = hasAccess(userEntity.roles)
-
-    operator fun invoke() = command
 }
