@@ -15,14 +15,12 @@ open class CallbackDataService {
     open fun findById(id: Long) =
         callbackDataEntityRepository.findById(id)
             .getOrNull()
-            ?.mapper()
             ?.toDTO()
 
     open fun save(callbackDataEntity: CallbackDataEntity): CallbackDataEntity? =
         callbackDataEntityRepository.save(callbackDataEntity)
 
     open fun save(callbackData: CallbackDataDTO): CallbackDataDTO? =
-        save(callbackData.mapper().toEntity())
-            ?.mapper()
+        save(callbackData.toEntity())
             ?.toDTO()
 }

@@ -8,6 +8,7 @@ data class ReplyKeyboardType(
     /** Как клавиатура рисуется **/
     var builder: IReplyButtonBuilder,
 ): RegistryModel(ReplyKeyboardType::class, type) {
+    init { registerModel() }
 
     fun build(roles: Set<UserRole>): ReplyKeyboardMarkup {
         val keyboard = builder.build(roles)

@@ -14,6 +14,7 @@ data class TextCommand(
     /** использование в меню помощи **/
     val showInHelp: Boolean = true,
 ) : RegistryModel(TextCommand::class, command) {
+    init { registerModel() }
 
     companion object {
         fun isTextCommand(text: String?) =

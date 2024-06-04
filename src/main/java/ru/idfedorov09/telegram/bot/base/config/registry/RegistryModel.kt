@@ -6,11 +6,7 @@ abstract class RegistryModel(
     private val origin: KClass<out RegistryModel>,
     open val mark: String,
 ) {
-    init {
-        registerModel()
-    }
-
-    private fun registerModel() {
+    protected fun registerModel() {
         RegistryHolder.register(this)
     }
 

@@ -28,42 +28,45 @@ open class UserEntity(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
-    open val id: Long? = null,
-
+    open var id: Long? = null,
     /** id юзера в телеграме **/
     @Column(name = "tui")
     open var tui: String? = null,
-
     /** последний сохраненный ник в телеге **/
     @Column(name = "last_tg_nick")
     open var lastTgNick: String? = null,
-
     /** роли пользователя **/
     @ElementCollection
     @CollectionTable(name="user_roles")
     @Convert(converter = UserRoleConverter::class)
     open var roles: Set<UserRole> = mutableSetOf(),
-
     /** тип предыдущего действия пользователя **/
     @Column(name = "last_action_type", columnDefinition = "TEXT")
     @Convert(converter = LastUserActionTypeConverter::class)
-    var lastUserActionType: LastUserActionType? = null,
-
+    open var lastUserActionType: LastUserActionType? = null,
     /** поле для временных данных юзера **/
     @Column(name = "user_data", columnDefinition = "TEXT")
-    var data: String? = null,
-
+    open var data: String? = null,
     /** метка soft-delete **/
     @Column(name = "is_deleted")
-    var isDeleted: Boolean = false,
-
+    open var isDeleted: Boolean = false,
     /** тип текущей реплай клавиатуры **/
     @Column(name = "current_keyboard_type", columnDefinition = "TEXT", updatable = false)
     @Convert(converter = UserKeyboardTypeConverter::class)
-    var currentKeyboardType: ReplyKeyboardType? = null,
-
+    open var currentKeyboardType: ReplyKeyboardType? = null,
     /** Было ли выполнено переключение клавиатуры на новую **/
     @Column(name = "is_keyboard_switched", updatable = false)
-    var isKeyboardSwitched: Boolean = false,
-
-): BaseEntity<UserDTO, UserEntity>()
+    open var isKeyboardSwitched: Boolean = false,
+): BaseEntity<UserDTO>() {
+    override fun toDTO() = UserDTO(
+        id = id,
+        tui = tui,
+        lastTgNick = lastTgNick,
+        roles = roles,
+        lastUserActionType = lastUserActionType,
+        data = data,
+        isDeleted = isDeleted,
+        currentKeyboardType = currentKeyboardType,
+        isKeyboardSwitched = isKeyboardSwitched,
+    )
+}

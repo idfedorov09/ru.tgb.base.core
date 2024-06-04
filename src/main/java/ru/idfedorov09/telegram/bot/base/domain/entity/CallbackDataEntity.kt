@@ -19,7 +19,7 @@ open class CallbackDataEntity(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "callback_id")
-    val id: Long? = null,
+    open val id: Long? = null,
     /** id сообщения кнопки **/
     @Column(name = "chat_id")
     open var chatId: String? = null,
@@ -35,4 +35,13 @@ open class CallbackDataEntity(
     /** url под кнопкой **/
     @Column(name = "url", columnDefinition = "TEXT")
     open var metaUrl: String? = null,
-): BaseEntity<CallbackDataDTO, CallbackDataEntity>()
+): BaseEntity<CallbackDataDTO>() {
+    override fun toDTO() = CallbackDataDTO(
+        id = id,
+        chatId = chatId,
+        messageId = messageId,
+        callbackData = callbackData,
+        metaText = metaText,
+        metaUrl = metaUrl,
+    )
+}

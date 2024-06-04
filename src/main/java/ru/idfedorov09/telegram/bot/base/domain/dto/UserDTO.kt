@@ -17,7 +17,7 @@ data class UserDTO(
     val isDeleted: Boolean = false,
     val currentKeyboardType: ReplyKeyboardType? = null,
     val isKeyboardSwitched: Boolean = false,
-): BaseDTO<UserDTO, UserEntity>() {
+): BaseDTO<UserEntity>() {
     private val log = LoggerFactory.getLogger(this::class.java)
     private val objectMapper = ObjectMapper()
 
@@ -32,4 +32,16 @@ data class UserDTO(
     }
 
     inline fun <reified T> userData() = userData(T::class.java)
+
+    override fun toEntity() = UserEntity(
+        id = id,
+        tui = tui,
+        lastTgNick = lastTgNick,
+        roles = roles,
+        lastUserActionType = lastUserActionType,
+        data = data,
+        isDeleted = isDeleted,
+        currentKeyboardType = currentKeyboardType,
+        isKeyboardSwitched = isKeyboardSwitched,
+    )
 }

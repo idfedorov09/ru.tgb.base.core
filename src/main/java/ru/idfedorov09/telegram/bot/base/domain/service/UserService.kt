@@ -17,7 +17,7 @@ class UserService {
     @Autowired
     lateinit var gson: Gson
 
-    open fun findById(id: Long) = userRepository.findById(id).getOrNull()?.mapper()?.toDTO()
+    open fun findById(id: Long) = userRepository.findById(id).getOrNull()?.toDTO()
 
     open fun save(userEntity: UserEntity): UserEntity? {
         val lastUserEntity = userEntity.id?.let { userRepository.findById(it) }?.get()
@@ -32,7 +32,7 @@ class UserService {
     }
 
     open fun findNotDeletedByTui(tui: String) =
-        userRepository.findNotDeletedByTui(tui)?.mapper()?.toDTO()
+        userRepository.findNotDeletedByTui(tui)?.toDTO()
 
     open fun updateKeyboardSwitchedForUserTui(
         tui: String,

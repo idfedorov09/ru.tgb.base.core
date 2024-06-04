@@ -1,9 +1,11 @@
 package ru.idfedorov09.telegram.bot.base.config.registry
 
+import org.slf4j.LoggerFactory
 import kotlin.reflect.KClass
 
 object RegistryHolder {
     private val registries = mutableMapOf<KClass<out RegistryModel>, Registry<out RegistryModel>>()
+    private val log = LoggerFactory.getLogger(this::class.java)
 
     init {
         registries[CallbackCommand::class] = Registry<CallbackCommand>()
@@ -11,6 +13,8 @@ object RegistryHolder {
         registries[TextCommand::class] = Registry<TextCommand>()
         registries[LastUserActionType::class] = Registry<LastUserActionType>()
         registries[ReplyKeyboardType::class] = Registry<ReplyKeyboardType>()
+
+        log.info("RegistryHolder has been initialized.")
     }
 
     @Suppress("UNCHECKED_CAST")
