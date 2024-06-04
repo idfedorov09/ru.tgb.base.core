@@ -109,6 +109,7 @@ open class DefaultFetcher : GeneralFetcher() {
         }
     }
 
+    // TODO: проверка ролей для команды
     private fun textCommandsHandler(update: Update) {
         val command = update.message.text.trim()
 
