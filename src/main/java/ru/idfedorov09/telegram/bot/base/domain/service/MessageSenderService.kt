@@ -20,10 +20,10 @@ open class MessageSenderService(
      */
     fun sendMessage(messageParams: MessageParams): Message {
         return messageParams.run {
-            if (replyMarkup == null) {
-                trySendWithSwitchKeyboard(messageParams)
-            } else {
+            if (userService.findNotDeletedByTui(messageParams.chatId) == null) {
                 MessageSenderUtil.sendMessage(bot, messageParams)
+            } else {
+                trySendWithSwitchKeyboard(messageParams)
             }
         }
     }
