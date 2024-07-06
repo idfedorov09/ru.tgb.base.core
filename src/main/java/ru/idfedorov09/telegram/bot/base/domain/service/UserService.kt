@@ -21,8 +21,8 @@ class UserService {
 
     open fun save(userEntity: UserEntity): UserEntity? {
         val lastUserEntity = userEntity.id?.let { userRepository.findById(it) }?.get()
-        val target = JSONObject(userEntity.data)
-        val source = JSONObject(lastUserEntity?.data)
+        val target = JSONObject(userEntity.data ?: "{}")
+        val source = JSONObject(lastUserEntity?.data ?: "{}")
         lastUserEntity ?: return userRepository.save(userEntity)
         val mergedData = deepMerge(source, target).toString()
         return userEntity.let {

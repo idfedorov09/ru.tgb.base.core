@@ -65,7 +65,6 @@ open class DefaultFetcher : GeneralFetcher() {
     /**
      * Вызывает методы-обработчики
      */
-
     // TODO : wrapper pattern + create ticket
     fun handle() {
         val update = flowContext.get<Update>() ?: run {

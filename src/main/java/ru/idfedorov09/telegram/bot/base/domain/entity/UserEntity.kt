@@ -3,14 +3,11 @@ package ru.idfedorov09.telegram.bot.base.domain.entity
 import jakarta.persistence.CollectionTable
 import jakarta.persistence.Column
 import jakarta.persistence.Convert
-import jakarta.persistence.DiscriminatorColumn
 import jakarta.persistence.ElementCollection
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
-import jakarta.persistence.Inheritance
-import jakarta.persistence.InheritanceType
 import jakarta.persistence.Table
 import ru.idfedorov09.telegram.bot.base.config.registry.LastUserActionType
 import ru.idfedorov09.telegram.bot.base.config.registry.ReplyKeyboardType
@@ -22,8 +19,6 @@ import ru.idfedorov09.telegram.bot.base.domain.dto.UserDTO
 
 @Entity
 @Table(name = "users_table")
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name = "class_type", columnDefinition = "TEXT")
 open class UserEntity(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

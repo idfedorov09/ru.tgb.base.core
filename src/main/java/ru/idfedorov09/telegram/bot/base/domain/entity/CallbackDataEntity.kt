@@ -1,20 +1,15 @@
 package ru.idfedorov09.telegram.bot.base.domain.entity
 
 import jakarta.persistence.Column
-import jakarta.persistence.DiscriminatorColumn
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
-import jakarta.persistence.Inheritance
-import jakarta.persistence.InheritanceType
 import jakarta.persistence.Table
 import ru.idfedorov09.telegram.bot.base.domain.dto.CallbackDataDTO
 
 @Entity
 @Table(name = "callback_data")
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name = "class_type", columnDefinition = "TEXT")
 open class CallbackDataEntity(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
