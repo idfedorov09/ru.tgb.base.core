@@ -43,7 +43,8 @@ class UserService {
     ) = userRepository.updateKeyboardSwitchedForUserTui(tui, isSwitched)
 
     private fun deepMerge(source: JSONObject, target: JSONObject): JSONObject {
-        for (key in JSONObject.getNames(source)) {
+        val names = JSONObject.getNames(source) ?: emptyArray()
+        for (key in names) {
             val value = source[key]
             if (!target.has(key)) {
                 target.put(key, value)
