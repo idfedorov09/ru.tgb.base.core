@@ -27,6 +27,8 @@ import kotlin.reflect.full.hasAnnotation
 
 @Component
 open class DefaultFetcher : GeneralFetcher() {
+
+    // TODO: race condition - need to fix [using map with uuid on super.fetchCall()]
     private lateinit var flowContext: FlowContext
 
     @Autowired
@@ -211,4 +213,6 @@ open class DefaultFetcher : GeneralFetcher() {
             ),
         )
     }
+
+    fun addToContext(obj: Any?) = flowContext.insertObject(obj)
 }

@@ -4,6 +4,7 @@ import com.google.gson.Gson
 import org.json.JSONObject
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+import ru.idfedorov09.telegram.bot.base.domain.dto.UserDTO
 import ru.idfedorov09.telegram.bot.base.domain.entity.UserEntity
 import ru.idfedorov09.telegram.bot.base.repository.UserRepository
 import kotlin.jvm.optionals.getOrNull
@@ -30,6 +31,8 @@ class UserService {
             userRepository.save(it)
         }
     }
+
+    open fun save(userDTO: UserDTO) = save(userDTO.toEntity())?.toDTO()
 
     open fun findNotDeletedByTui(tui: String) =
         userRepository.findNotDeletedByTui(tui)?.toDTO()
