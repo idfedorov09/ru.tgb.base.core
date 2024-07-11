@@ -10,7 +10,7 @@ import java.time.format.DateTimeFormatter
  * Все методы помечаем @Synchronized для избежания рейс кондишнов!
  */
 @Service
-class RedisService(
+open class RedisService(
     private var jedis: Jedis,
 ) {
 
