@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component
 import ru.idfedorov09.telegram.bot.base.config.registry.RegistryHolder
 import ru.idfedorov09.telegram.bot.base.domain.Commands
 import ru.idfedorov09.telegram.bot.base.domain.GlobalConstants
+import ru.idfedorov09.telegram.bot.base.domain.ReplyKeyboardTypes
 import ru.idfedorov09.telegram.bot.base.domain.Roles
 import ru.mephi.sno.libs.flow.config.BaseFlowConfiguration
 
@@ -30,5 +31,6 @@ open class FlowConfig(val applicationContext: ApplicationContext) {
         Commands
         GlobalConstants
         Roles
+        ReplyKeyboardTypes
     }
 }
