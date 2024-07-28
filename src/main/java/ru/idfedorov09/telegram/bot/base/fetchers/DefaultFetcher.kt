@@ -82,7 +82,17 @@ open class DefaultFetcher : GeneralFetcher() {
     private fun callbackQueryHandler(update: Update) {
         val callbackId = update.callbackQuery.data?.toLongOrNull()
         callbackId ?: return
-        val callbackData = callbackDataService.findById(callbackId)?.callbackData ?: return
+        val callbackDataWithParams = callbackDataService
+            .findById(callbackId)
+            ?.callbackData
+            ?: return
+
+        val callbackData = callbackDataWithParams
+            .split("&") // for params in callback
+            .firstOrNull()
+            ?: return
+
+        val params = callbackDataWithParams.removePrefix("$callbackData&")
 
         val commandMethods = this::class
             .declaredMemberFunctions
@@ -97,7 +107,7 @@ open class DefaultFetcher : GeneralFetcher() {
 
         if (okCommandMethods.size == 1) {
             val method = okCommandMethods.first()
-            methodCall(method)
+            methodCall(method, params)
         }
         else {
             val defaultMethods = this::class
@@ -106,7 +116,7 @@ open class DefaultFetcher : GeneralFetcher() {
             if (defaultMethods.size > 1)
                 throw IllegalStateException("Too many matching default text-handlers in the fetcher.")
             if (defaultMethods.size == 1)
-                methodCall(defaultMethods.first())
+                methodCall(defaultMethods.first(), params)
         }
     }
 
@@ -163,7 +173,11 @@ open class DefaultFetcher : GeneralFetcher() {
         }
     }
 
-    private fun methodCall(method: KFunction<*>) {
+    // TODO: handle additional params
+    private fun methodCall(
+        method: KFunction<*>,
+        additionalParams: String? = null
+    ) {
         if (!isValidPerms(flowContext, method)) return
         val params = getParamsFromFlow(method, flowContext)
         val result = method.call(this, *params.toTypedArray())
