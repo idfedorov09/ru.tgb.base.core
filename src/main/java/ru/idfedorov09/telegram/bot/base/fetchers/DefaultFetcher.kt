@@ -8,12 +8,7 @@ import ru.idfedorov09.telegram.bot.base.config.FetcherConfigContainer
 import ru.idfedorov09.telegram.bot.base.config.registry.RegistryHolder
 import ru.idfedorov09.telegram.bot.base.config.registry.UserRole
 import ru.idfedorov09.telegram.bot.base.domain.Roles
-import ru.idfedorov09.telegram.bot.base.domain.annotation.Callback
-import ru.idfedorov09.telegram.bot.base.domain.annotation.CallbackDefault
-import ru.idfedorov09.telegram.bot.base.domain.annotation.Command
-import ru.idfedorov09.telegram.bot.base.domain.annotation.FetcherPerms
-import ru.idfedorov09.telegram.bot.base.domain.annotation.InputText
-import ru.idfedorov09.telegram.bot.base.domain.annotation.InputTextDefault
+import ru.idfedorov09.telegram.bot.base.domain.annotation.*
 import ru.idfedorov09.telegram.bot.base.domain.dto.UserDTO
 import ru.idfedorov09.telegram.bot.base.domain.service.CallbackDataService
 import ru.idfedorov09.telegram.bot.base.domain.service.MessageSenderService
@@ -76,9 +71,40 @@ open class DefaultFetcher : GeneralFetcher() {
         when {
             update.hasMessage() && update.message.hasText() -> textCommandsHandler(update)
             update.hasCallbackQuery() -> callbackQueryHandler(update)
+            update.hasMessage() && update.message.hasPhoto() -> photoHandler(update)
         }
     }
 
+    // TODO: код повторяется с InputText, придумать как избежать
+    private fun photoHandler(update: Update) {
+        val luatMark = flowContext.get<UserDTO>()?.lastUserActionType?.mark ?: return
+
+        val methods = this::class
+            .declaredMemberFunctions
+            .filter { it.hasAnnotation<InputPhoto>() }
+
+        val okMethods = methods.filter {
+            it.findAnnotation<InputPhoto>()?.let { luat -> luatMark == luat.lastUserActionTypeMark } ?: false
+        }
+
+        if (okMethods.size > 1)
+            throw IllegalStateException("Too many matching photo-handlers in the fetcher. Check for the collisions.")
+
+        if (okMethods.size == 1) {
+            val method = okMethods.first()
+            methodCall(method)
+        } else {
+            val defaultMethods = this::class
+                .declaredMemberFunctions
+                .filter { it.hasAnnotation<InputPhotoDefault>() }
+            if (defaultMethods.size > 1)
+                throw IllegalStateException("Too many matching default photo-handlers in the fetcher.")
+            if (defaultMethods.size == 1)
+                methodCall(defaultMethods.first())
+        }
+    }
+
+    // TODO: параметры
     private fun callbackQueryHandler(update: Update) {
         val callbackId = update.callbackQuery.data?.toLongOrNull()
         callbackId ?: return
