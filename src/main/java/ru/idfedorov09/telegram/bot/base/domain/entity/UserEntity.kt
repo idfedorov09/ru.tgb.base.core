@@ -1,14 +1,6 @@
 package ru.idfedorov09.telegram.bot.base.domain.entity
 
-import jakarta.persistence.CollectionTable
-import jakarta.persistence.Column
-import jakarta.persistence.Convert
-import jakarta.persistence.ElementCollection
-import jakarta.persistence.Entity
-import jakarta.persistence.GeneratedValue
-import jakarta.persistence.GenerationType
-import jakarta.persistence.Id
-import jakarta.persistence.Table
+import jakarta.persistence.*
 import ru.idfedorov09.telegram.bot.base.config.registry.LastUserActionType
 import ru.idfedorov09.telegram.bot.base.config.registry.ReplyKeyboardType
 import ru.idfedorov09.telegram.bot.base.config.registry.UserRole
@@ -31,7 +23,7 @@ open class UserEntity(
     @Column(name = "last_tg_nick")
     open var lastTgNick: String? = null,
     /** роли пользователя **/
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name="user_roles")
     @Convert(converter = UserRoleConverter::class)
     open var roles: Set<UserRole> = mutableSetOf(),
