@@ -11,6 +11,7 @@ import ru.idfedorov09.telegram.bot.base.config.registry.RegistryHolder
 import ru.idfedorov09.telegram.bot.base.config.registry.UserRole
 import ru.idfedorov09.telegram.bot.base.domain.Roles
 import ru.idfedorov09.telegram.bot.base.domain.annotation.*
+import ru.idfedorov09.telegram.bot.base.domain.dto.CallbackDataDTO
 import ru.idfedorov09.telegram.bot.base.domain.dto.UserDTO
 import ru.idfedorov09.telegram.bot.base.domain.service.CallbackDataService
 import ru.idfedorov09.telegram.bot.base.domain.service.MessageSenderService
@@ -50,10 +51,8 @@ open class DefaultFetcher : GeneralFetcher() {
         if (!isValidPerms(flowContext, doFetchMethod)) return null
 
         return runCatching {
-            super.fetchCall(flowContext, doFetchMethod, params).also {
-                // всегда ли нужно handle() ?
-                handle()
-            }
+            handle() // TODO: всегда ли нужно handle?
+            super.fetchCall(flowContext, doFetchMethod, params)
         }.onFailure { e ->
             log.error("ERROR: $e")
             log.debug(e.stackTraceToString())
@@ -106,21 +105,18 @@ open class DefaultFetcher : GeneralFetcher() {
         }
     }
 
-    // TODO: параметры
+    /** Обрабатывает методы @Callback(mark). Инжектит в контекст callbackData **/
     private fun callbackQueryHandler(update: Update) {
         val callbackId = update.callbackQuery.data?.toLongOrNull()
         callbackId ?: return
-        val callbackDataWithParams = callbackDataService
-            .findById(callbackId)
+        val callbackDataWithParams = flowContext.get<CallbackDataDTO>()
             ?.callbackData
-            ?: return
-
-        val callbackData = callbackDataWithParams
-            .split("&") // for params in callback
-            .firstOrNull()
-            ?: return
-
-        val params = callbackDataWithParams.removePrefix("$callbackData&")
+            ?: callbackDataService
+                .findById(callbackId)
+                .also { addToContext(it) }
+                ?.callbackData
+                ?: return
+        val callbackData = callbackDataWithParams.substringBefore("&")
 
         val commandMethods = this::class
             .declaredMemberFunctions
@@ -135,7 +131,7 @@ open class DefaultFetcher : GeneralFetcher() {
 
         if (okCommandMethods.size == 1) {
             val method = okCommandMethods.first()
-            methodCall(method, params)
+            methodCall(method)
         }
         else {
             val defaultMethods = this::class
@@ -144,7 +140,7 @@ open class DefaultFetcher : GeneralFetcher() {
             if (defaultMethods.size > 1)
                 throw IllegalStateException("Too many matching default text-handlers in the fetcher.")
             if (defaultMethods.size == 1)
-                methodCall(defaultMethods.first(), params)
+                methodCall(defaultMethods.first())
         }
     }
 
@@ -204,7 +200,6 @@ open class DefaultFetcher : GeneralFetcher() {
     // TODO: handle additional params
     private fun methodCall(
         method: KFunction<*>,
-        additionalParams: String? = null
     ) {
         if (!isValidPerms(flowContext, method)) return
         val params = getParamsFromFlow(method, flowContext)
