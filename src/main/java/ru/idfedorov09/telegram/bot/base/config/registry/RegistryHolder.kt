@@ -7,14 +7,11 @@ object RegistryHolder {
     private val registries = mutableMapOf<KClass<out RegistryModel>, Registry<out RegistryModel>>()
     private val log = LoggerFactory.getLogger(this::class.java)
 
-    init {
-        registries[CallbackCommand::class] = Registry<CallbackCommand>()
-        registries[UserRole::class] = Registry<UserRole>()
-        registries[TextCommand::class] = Registry<TextCommand>()
-        registries[LastUserActionType::class] = Registry<LastUserActionType>()
-        registries[ReplyKeyboardType::class] = Registry<ReplyKeyboardType>()
-
-        log.info("RegistryHolder has been initialized.")
+    fun <T : RegistryModel> addRegistry(kClass: KClass<T>) {
+        if (kClass !in registries) {
+            registries[kClass] = Registry<T>()
+            log.info("Registry for ${kClass.qualifiedName} added.")
+        }
     }
 
     @Suppress("UNCHECKED_CAST")

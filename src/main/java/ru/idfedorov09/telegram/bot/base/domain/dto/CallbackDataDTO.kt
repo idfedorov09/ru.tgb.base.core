@@ -64,7 +64,9 @@ data class CallbackDataDTO(
 
     fun getParams(): Map<String, String> {
         val paramsPart = callbackData
-            ?.substringAfter("&") // TODO: separator const
+            ?.split("&") // TODO: separator const
+            ?.takeIf { it.size > 1 }
+            ?.last()
             ?: return emptyMap()
 
         return paramsPart.jsonToMap()
