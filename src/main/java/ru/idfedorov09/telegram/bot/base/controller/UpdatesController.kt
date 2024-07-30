@@ -43,10 +43,11 @@ class UpdatesController(
     }
 
     private fun shouldStartSelectedFlow(params: UpdateControllerParams): Boolean {
-        val update = params.update
-
-        if (update.hasMessage() && update.message.hasText() && TextCommand.isTextCommand(update.message.text))
-            return false
+        // TODO разрбраться че за прикол я тут написал)
+//        val update = params.update
+//
+//        if (update.hasMessage() && update.message.hasText() && TextCommand.isTextCommand(update.message.text))
+//            return false
 
         return flowBuilderService.isFlowSelected()
     }

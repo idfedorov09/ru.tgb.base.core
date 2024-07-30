@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton
 import ru.idfedorov09.telegram.bot.base.domain.entity.CallbackDataEntity
+import ru.idfedorov09.telegram.bot.base.domain.service.CallbackDataService
 
 data class CallbackDataDTO(
     val id: Long? = null,
@@ -13,6 +14,13 @@ data class CallbackDataDTO(
     val metaText: String? = null,
     val metaUrl: String? = null,
 ) : BaseDTO<CallbackDataEntity>() {
+
+    companion object {
+        private lateinit var callbackDataService: CallbackDataService
+        fun init(service: CallbackDataService) {
+            callbackDataService = service
+        }
+    }
 
     private val mapper = ObjectMapper()
 
@@ -75,4 +83,6 @@ data class CallbackDataDTO(
     private fun String.jsonToMap(): Map<String, String> {
         return mapper.readValue(this, object : TypeReference<Map<String, String>>() {})
     }
+
+    fun save() = callbackDataService.save(this)!!
 }
