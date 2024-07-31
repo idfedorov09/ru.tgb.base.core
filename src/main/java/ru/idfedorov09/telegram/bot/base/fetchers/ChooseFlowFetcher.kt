@@ -70,7 +70,7 @@ class ChooseFlowFetcher(
         callbackId ?: return
         val callbackData = callbackDataService.findById(callbackId) ?: return
 
-        callbackData.callbackData?.apply {
+        callbackData.callbackData()?.apply {
             when {
                 startsWith(selectFlowCallbackPrefix) -> selectFlow(update, callbackData, false)
                 startsWith(selectFlowCallbackPrefixForced) -> selectFlow(update, callbackData, true)
@@ -90,6 +90,7 @@ class ChooseFlowFetcher(
         )
     }
 
+    // TODO: full use SmartString!
     private fun selectFlow(update: Update, callbackData: CallbackDataDTO, forced: Boolean) {
         if (!forced && flowBuilderService.isFlowSelected()) {
             bot.execute(
@@ -100,7 +101,7 @@ class ChooseFlowFetcher(
             )
             return
         }
-        val flowName = callbackData.callbackData!!.split(SEPARATOR).lastOrNull() ?: run {
+        val flowName = callbackData.callbackData()!!.split(SEPARATOR).lastOrNull() ?: run {
             bot.execute(
                 SendMessage().apply {
                     text = "Выбран некорректный флоу."

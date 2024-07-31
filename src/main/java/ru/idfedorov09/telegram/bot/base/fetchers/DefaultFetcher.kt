@@ -110,11 +110,11 @@ open class DefaultFetcher : GeneralFetcher() {
         val callbackId = update.callbackQuery.data?.toLongOrNull()
         callbackId ?: return
         val callbackDataWithParams = flowContext.get<CallbackDataDTO>()
-            ?.callbackData
+            ?.callbackData?.get()
             ?: callbackDataService
                 .findById(callbackId)
                 .also { addToContext(it) }
-                ?.callbackData
+                ?.callbackData?.get()
                 ?: return
         val callbackData = callbackDataWithParams.substringBefore("&")
 

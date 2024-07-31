@@ -6,6 +6,7 @@ import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Table
+import ru.idfedorov09.kotbot.domain.model.SmartString
 import ru.idfedorov09.telegram.bot.base.domain.dto.CallbackDataDTO
 
 @Entity
@@ -35,7 +36,7 @@ open class CallbackDataEntity(
         id = id,
         chatId = chatId,
         messageId = messageId,
-        callbackData = callbackData,
+        callbackData = SmartString(callbackData),
         metaText = metaText,
         metaUrl = metaUrl,
     )
