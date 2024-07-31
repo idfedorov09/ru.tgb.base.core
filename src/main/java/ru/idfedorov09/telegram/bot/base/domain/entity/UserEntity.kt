@@ -31,9 +31,6 @@ open class UserEntity(
     @Column(name = "last_action_type", columnDefinition = "TEXT")
     @Convert(converter = LastUserActionTypeConverter::class)
     open var lastUserActionType: LastUserActionType? = null,
-    /** поле для временных данных юзера **/
-    @Column(name = "user_data", columnDefinition = "TEXT")
-    open var data: String? = null,
     /** метка soft-delete **/
     @Column(name = "is_deleted")
     open var isDeleted: Boolean = false,
@@ -51,7 +48,6 @@ open class UserEntity(
         lastTgNick = lastTgNick,
         roles = roles,
         lastUserActionType = lastUserActionType,
-        data = data,
         isDeleted = isDeleted,
         currentKeyboardType = currentKeyboardType,
         isKeyboardSwitched = isKeyboardSwitched,
