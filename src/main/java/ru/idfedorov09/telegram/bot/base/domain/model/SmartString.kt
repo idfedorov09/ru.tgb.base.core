@@ -13,12 +13,19 @@ data class SmartString<T>(
 
     companion object {
         private const val SEPARATOR = "&"
+        private const val SEPARATOR_NOT_FOUND = -1
+    }
+
+    fun getWithoutParams(): String? {
+        val separatorPos = value?.indexOf(SEPARATOR) ?: SEPARATOR_NOT_FOUND
+        if (separatorPos == SEPARATOR_NOT_FOUND) return value
+        return value?.substring(0, separatorPos)
     }
 
     private fun rewriteParamPart(newValue: String) {
         value = value?.let {
             val separatorPos = it.indexOf(SEPARATOR)
-            if (separatorPos != -1) {
+            if (separatorPos != SEPARATOR_NOT_FOUND) {
                 it.substring(0, separatorPos) + SEPARATOR + newValue
             } else {
                 "$it$SEPARATOR$newValue"

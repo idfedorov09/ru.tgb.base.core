@@ -78,7 +78,11 @@ open class DefaultFetcher : GeneralFetcher() {
 
     // TODO: код повторяется с InputText, придумать как избежать
     private fun photoHandler(update: Update) {
-        val luatMark = flowContext.get<UserDTO>()?.lastUserActionType?.mark ?: return
+        val luatMark = flowContext
+            .get<UserDTO>()
+            ?.lastUserActionType
+            ?.type
+            ?.getWithoutParams() ?: return
 
         val methods = this::class
             .declaredMemberFunctions
@@ -170,7 +174,11 @@ open class DefaultFetcher : GeneralFetcher() {
     }
 
     private fun commonTextHandler(update: Update) {
-        val luatMark = flowContext.get<UserDTO>()?.lastUserActionType?.mark ?: return
+        val luatMark = flowContext
+            .get<UserDTO>()
+            ?.lastUserActionType
+            ?.type
+            ?.getWithoutParams() ?: return
 
         val methods = this::class
             .declaredMemberFunctions
