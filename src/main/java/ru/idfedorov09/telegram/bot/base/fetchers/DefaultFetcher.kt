@@ -247,14 +247,19 @@ open class DefaultFetcher : GeneralFetcher() {
             flowContext.get<Update>()
                 ?: throw RuntimeException("Can't delete the message: there's no update in the context.")
 
-        if (!update.hasMessage()) {
+        if (!update.hasMessage() && !update.hasCallbackQuery()) {
             throw RuntimeException("Can't delete the message: there's no message in the update.")
         }
+
+        val messageId = if (update.hasMessage())
+            update.message.messageId
+        else
+            update.callbackQuery.message.messageId
 
         messageSenderService.deleteMessage(
             MessageParams(
                 chatId = update.message.chatId.toString(),
-                messageId = update.message.messageId,
+                messageId = messageId,
             ),
         )
     }
