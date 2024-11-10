@@ -16,6 +16,7 @@ import ru.idfedorov09.telegram.bot.base.domain.dto.UserDTO
 import ru.idfedorov09.telegram.bot.base.domain.service.CallbackDataService
 import ru.idfedorov09.telegram.bot.base.domain.service.MessageSenderService
 import ru.idfedorov09.telegram.bot.base.util.MessageParams
+import ru.idfedorov09.telegram.bot.base.util.UpdatesUtil
 import ru.mephi.sno.libs.flow.belly.FlowContext
 import ru.mephi.sno.libs.flow.fetcher.GeneralFetcher
 import kotlin.reflect.KFunction
@@ -25,6 +26,9 @@ import kotlin.reflect.full.hasAnnotation
 
 @Component
 open class DefaultFetcher : GeneralFetcher() {
+
+    @Autowired
+    private lateinit var updatesUtil: UpdatesUtil
 
     // TODO: race condition - need to fix [using map with uuid on super.fetchCall()]
     private lateinit var flowContext: FlowContext
@@ -256,9 +260,11 @@ open class DefaultFetcher : GeneralFetcher() {
         else
             update.callbackQuery.message.messageId
 
+        updatesUtil.getChatId(update) ?: return
+
         messageSenderService.deleteMessage(
             MessageParams(
-                chatId = update.message.chatId.toString(),
+                chatId = updatesUtil.getChatId(update)!!,
                 messageId = messageId,
             ),
         )
