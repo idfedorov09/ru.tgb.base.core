@@ -22,6 +22,7 @@ class EmailService(
             val templateContent = ResourcesUtil.getContent("mail/$templateName.html")
             val defaultParameters = mapOf(
                 "year" to Calendar.getInstance().get(Calendar.YEAR).toString(),
+                // TODO: other default params
             )
             val prepared = applyBodyParams(templateContent, defaultParameters)
             return applyBodyParams(prepared, parameters)
