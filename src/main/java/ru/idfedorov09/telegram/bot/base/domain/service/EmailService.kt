@@ -1,9 +1,14 @@
 package ru.idfedorov09.telegram.bot.base.domain.service
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.mail.SimpleMailMessage
 import org.springframework.mail.javamail.JavaMailSender
+import org.springframework.mail.javamail.MimeMessageHelper
 import org.springframework.stereotype.Service
+import ru.idfedorov09.telegram.bot.base.util.ResourcesUtil
+import java.util.*
 
 @Service
 class EmailService(
@@ -12,13 +17,35 @@ class EmailService(
     @Value("\${spring.mail.default}")
     private lateinit var defaultMail: String
 
-    fun sendEmail(toEmail: String, subject: String, body: String, from: String?) {
-        val message = SimpleMailMessage().also {
-            it.from = from ?: defaultMail
-            it.setTo(toEmail)
-            it.setSubject(subject)
-            it.setText(body)
+    companion object {
+        fun buildBody(templateName: String, parameters: Map<String, String>): String {
+            val templateContent = ResourcesUtil.getContent("mail/$templateName.html")
+            val defaultParameters = mapOf(
+                "year" to Calendar.getInstance().get(Calendar.YEAR).toString(),
+            )
+            val prepared = applyBodyParams(templateContent, defaultParameters)
+            return applyBodyParams(prepared, parameters)
         }
-        mailSender.send(message)
+
+        private fun applyBodyParams(templateContent: String, parameters: Map<String, String>): String {
+            var result = templateContent
+            parameters.forEach { (key, value) ->
+                result = result.replace("%$key%", value)
+            }
+            return result
+        }
     }
+
+    fun sendEmail(toEmail: String, subject: String, body: String, from: String? = null) {
+        CoroutineScope(Dispatchers.IO).launch {
+            val message = mailSender.createMimeMessage()
+            val helper = MimeMessageHelper(message, true, "UTF-8").apply {  }
+            helper.setFrom(from ?: defaultMail)
+            helper.setTo(toEmail)
+            helper.setSubject(subject)
+            helper.setText(body, true)
+            mailSender.send(message)
+        }
+    }
+
 }
