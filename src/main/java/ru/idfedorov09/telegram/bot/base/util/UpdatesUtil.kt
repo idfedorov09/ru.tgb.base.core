@@ -48,7 +48,6 @@ class UpdatesUtil(
         val regex = Regex("\"from\":\\{([^\\}]+)\\}")
         val matchResult = regex.find(updateJson)
 
-        // TODO: нормальная обработка ошибок
         try {
             val userJson = "{${matchResult?.groups?.get(1)?.value}}"
             val user = gson.fromJson(userJson, User::class.java)

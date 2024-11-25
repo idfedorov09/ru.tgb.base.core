@@ -1,9 +1,6 @@
 package ru.idfedorov09.telegram.bot.base.util
 
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.asCoroutineDispatcher
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import org.telegram.telegrambots.bots.TelegramLongPollingBot
@@ -23,8 +20,6 @@ class OnReceiver(
     companion object {
         private val log = LoggerFactory.getLogger(OnReceiver::class.java)
     }
-
-    private val updatingRequestDispatcher = Executors.newFixedThreadPool(Int.MAX_VALUE).asCoroutineDispatcher()
 
     /** Обрабатывает отдельное обновление **/
     private fun execOne(update: Update, executor: TelegramLongPollingBot) {
@@ -55,10 +50,8 @@ class OnReceiver(
         }
     }
 
-    // TODO: убрать GlobalScope
-    @OptIn(DelicateCoroutinesApi::class)
     fun onReceive(update: Update, executor: TelegramLongPollingBot) {
-        GlobalScope.launch(updatingRequestDispatcher) {
+        CoroutineScope(Dispatchers.IO).launch {
             exec(update, executor)
         }
     }

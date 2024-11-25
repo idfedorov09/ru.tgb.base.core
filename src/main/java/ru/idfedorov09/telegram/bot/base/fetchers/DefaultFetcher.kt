@@ -17,14 +17,12 @@ import ru.idfedorov09.telegram.bot.base.domain.service.MessageSenderService
 import ru.idfedorov09.telegram.bot.base.util.MessageParams
 import ru.idfedorov09.telegram.bot.base.util.UpdatesUtil
 import ru.mephi.sno.libs.flow.belly.FlowContext
-import ru.mephi.sno.libs.flow.belly.Mutable
 import ru.mephi.sno.libs.flow.fetcher.GeneralFetcher
 import kotlin.reflect.KFunction
 import kotlin.reflect.full.callSuspend
 import kotlin.reflect.full.declaredMemberFunctions
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.hasAnnotation
-import kotlin.reflect.jvm.javaType
 
 @Component
 open class DefaultFetcher : GeneralFetcher() {
@@ -48,7 +46,7 @@ open class DefaultFetcher : GeneralFetcher() {
         if (!isValidPerms(flowContext, doFetchMethod)) return null
 
         return runCatching {
-            handle() // TODO: всегда ли нужно handle?
+            handle()
             super.fetchCall(flowContext, doFetchMethod, params)
         }.onFailure { e ->
             log.error("ERROR: $e")

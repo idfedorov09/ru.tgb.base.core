@@ -43,12 +43,6 @@ class UpdatesController(
     }
 
     private fun shouldStartSelectedFlow(params: UpdateControllerParams): Boolean {
-        // TODO разрбраться че за прикол я тут написал)
-//        val update = params.update
-//
-//        if (update.hasMessage() && update.message.hasText() && TextCommand.isTextCommand(update.message.text))
-//            return false
-
         return flowBuilderService.isFlowSelected()
     }
 
@@ -77,7 +71,7 @@ class UpdatesController(
         // прогоняем граф с ожиданием
         flowBuilder.initAndRun(
             flowContext = flowContext,
-            dispatcher = Dispatchers.Default,
+            dispatcher = Dispatchers.IO,
             wait = true,
             params.telegramBot,
             params.update,
