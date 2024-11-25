@@ -9,6 +9,7 @@ import ru.idfedorov09.telegram.bot.base.domain.converter.UserKeyboardTypeConvert
 import ru.idfedorov09.telegram.bot.base.domain.converter.UserRoleConverter
 import ru.idfedorov09.telegram.bot.base.domain.dto.UserDTO
 
+// TODO: рефакторинг названий
 @Entity
 @Table(name = "users_table")
 open class UserEntity(
