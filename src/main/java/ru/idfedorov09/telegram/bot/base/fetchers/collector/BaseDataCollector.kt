@@ -17,11 +17,11 @@ class BaseDataCollector(
 ): DefaultFetcher() {
 
     @InjectData
-    fun doFetch(
+    suspend fun doFetch(
         update: Update,
     ) {
         val tgUser = updatesUtil.getUser(update) ?: run {
-            stopFlowNextExecution()
+            stopFlow()
             return
         }
         val tui = tgUser.id.toString()
@@ -30,7 +30,7 @@ class BaseDataCollector(
         // TODO: other collectors?
     }
 
-    private fun collectUserDTO(
+    private suspend fun collectUserDTO(
         tui: String,
         username: String,
     ) {

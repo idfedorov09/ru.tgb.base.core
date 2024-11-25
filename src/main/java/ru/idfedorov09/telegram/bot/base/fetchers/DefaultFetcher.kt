@@ -1,6 +1,5 @@
 package ru.idfedorov09.telegram.bot.base.fetchers
 
-import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import org.telegram.telegrambots.meta.api.objects.Update
@@ -18,37 +17,31 @@ import ru.idfedorov09.telegram.bot.base.domain.service.MessageSenderService
 import ru.idfedorov09.telegram.bot.base.util.MessageParams
 import ru.idfedorov09.telegram.bot.base.util.UpdatesUtil
 import ru.mephi.sno.libs.flow.belly.FlowContext
+import ru.mephi.sno.libs.flow.belly.Mutable
 import ru.mephi.sno.libs.flow.fetcher.GeneralFetcher
 import kotlin.reflect.KFunction
+import kotlin.reflect.full.callSuspend
 import kotlin.reflect.full.declaredMemberFunctions
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.hasAnnotation
+import kotlin.reflect.jvm.javaType
 
 @Component
 open class DefaultFetcher : GeneralFetcher() {
 
     @Autowired
     private lateinit var updatesUtil: UpdatesUtil
-
-    // TODO: race condition - need to fix [using map with uuid on super.fetchCall()]
-    private lateinit var flowContext: FlowContext
-
     @Autowired
     private lateinit var messageSenderService: MessageSenderService
     @Autowired
     private lateinit var callbackDataService: CallbackDataService
 
-    companion object {
-        private val log = LoggerFactory.getLogger(DefaultFetcher::class.java)
-    }
-
-    override fun fetchCall(
+    override suspend fun fetchCall(
         flowContext: FlowContext,
         doFetchMethod: KFunction<*>,
         params: MutableList<Any?>,
     ): Any? {
-        this.flowContext = flowContext
-        val exp = this.flowContext.get<FetcherConfigContainer>() ?: FetcherConfigContainer()
+        val exp = getFlowContext().get<FetcherConfigContainer>() ?: FetcherConfigContainer()
         if (!exp.shouldContinueExecutionFlow) {
             return null
         }
@@ -60,7 +53,7 @@ open class DefaultFetcher : GeneralFetcher() {
         }.onFailure { e ->
             log.error("ERROR: $e")
             log.debug(e.stackTraceToString())
-            stopFlowNextExecution()
+            stopFlow()
         }.getOrNull()
     }
 
@@ -68,8 +61,8 @@ open class DefaultFetcher : GeneralFetcher() {
      * Вызывает методы-обработчики
      */
     // TODO : wrapper pattern + create ticket
-    fun handle() {
-        val update = flowContext.get<Update>() ?: run {
+    suspend fun handle() {
+        val update = getFlowContext().get<Update>() ?: run {
             log.warn("Can't handle update: there's no update in the context.")
             return
         }
@@ -81,8 +74,8 @@ open class DefaultFetcher : GeneralFetcher() {
     }
 
     // TODO: код повторяется с InputText, придумать как избежать
-    private fun photoHandler(update: Update) {
-        val luatMark = flowContext
+    private suspend fun photoHandler(update: Update) {
+        val luatMark = getFlowContext()
             .get<UserDTO>()
             ?.lastUserActionType
             ?.type
@@ -114,10 +107,10 @@ open class DefaultFetcher : GeneralFetcher() {
     }
 
     /** Обрабатывает методы @Callback(mark). Инжектит в контекст callbackData **/
-    private fun callbackQueryHandler(update: Update) {
+    private suspend fun callbackQueryHandler(update: Update) {
         val callbackId = update.callbackQuery.data?.toLongOrNull()
         callbackId ?: return
-        val callbackDataWithParams = flowContext.get<CallbackDataDTO>()
+        val callbackDataWithParams = getFlowContext().get<CallbackDataDTO>()
             ?.callbackData?.get()
             ?: callbackDataService
                 .findById(callbackId)
@@ -153,7 +146,7 @@ open class DefaultFetcher : GeneralFetcher() {
     }
 
     // TODO: проверка ролей для команды
-    private fun textCommandsHandler(update: Update) {
+    private suspend fun textCommandsHandler(update: Update) {
         val command = update.message.text.trim()
 
         val commandMethods = this::class
@@ -177,8 +170,8 @@ open class DefaultFetcher : GeneralFetcher() {
         }
     }
 
-    private fun commonTextHandler(update: Update) {
-        val luatMark = flowContext
+    private suspend fun commonTextHandler(update: Update) {
+        val luatMark = getFlowContext()
             .get<UserDTO>()
             ?.lastUserActionType
             ?.type
@@ -210,13 +203,17 @@ open class DefaultFetcher : GeneralFetcher() {
     }
 
     // TODO: handle additional params
-    private fun methodCall(
+    private suspend fun methodCall(
         method: KFunction<*>,
     ) {
-        if (!isValidPerms(flowContext, method)) return
-        val params = getParamsFromFlow(method, flowContext)
-        val result = method.call(this, *params.toTypedArray())
-        flowContext.insertObject(result)
+        if (!isValidPerms(getFlowContext(), method)) return
+        val params = getParamsFromFlow(method, getFlowContext())
+        val result = if (method.isSuspend) {
+            method.callSuspend(this, *params.toTypedArray())
+        } else {
+            method.call(this, *params.toTypedArray())
+        }
+        getFlowContext().insertObject(result)
     }
 
     private fun isValidPerms(
@@ -231,24 +228,12 @@ open class DefaultFetcher : GeneralFetcher() {
     }
 
     /**
-     * Прерывает дальнейшее выполнение графа в рамках сессии (прогонки графа)
-     */
-    @Synchronized
-    fun stopFlowNextExecution() {
-        val exp = flowContext.get<FetcherConfigContainer>() ?: FetcherConfigContainer()
-        exp.apply {
-            shouldContinueExecutionFlow = false
-            flowContext.insertObject(this)
-        }
-    }
-
-    /**
      * Метод который удаляет сообщение из только что пришедшего обновления
      * Вызывает исключение RuntimeException если в контексте нет Update или обновление не содержит сообщение
      */
-    fun deleteUpdateMessage() {
+    suspend fun deleteUpdateMessage() {
         val update =
-            flowContext.get<Update>()
+            getFlowContext().get<Update>()
                 ?: throw RuntimeException("Can't delete the message: there's no update in the context.")
 
         if (!update.hasMessage() && !update.hasCallbackQuery()) {
@@ -270,6 +255,6 @@ open class DefaultFetcher : GeneralFetcher() {
         )
     }
 
-    fun addToContext(obj: Any?) = flowContext.insertObject(obj)
+    suspend fun addToContext(obj: Any?) = getFlowContext().insertObject(obj)
     fun createKeyboard(keyboard: List<List<InlineKeyboardButton>>) = InlineKeyboardMarkup().also { it.keyboard = keyboard }
 }
