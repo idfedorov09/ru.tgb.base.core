@@ -27,4 +27,18 @@ data class UserDTO(
         currentKeyboardType = currentKeyboardType,
         isKeyboardSwitched = isKeyboardSwitched,
     )
+
+    fun setLastUserActionType(lastUserActionType: LastUserActionType?): UserDTO {
+        this.lastUserActionType = lastUserActionType?.copy()
+        return this
+    }
+
+    fun setLastUserActionTypeWithSaveParams(lastUserActionType: LastUserActionType): UserDTO {
+        val oldParams = this.lastUserActionType?.type?.getParams() ?: mapOf()
+        setLastUserActionType(lastUserActionType)
+        this.lastUserActionType?.let {
+            it.type.setParameters(it, oldParams)
+        }
+        return this
+    }
 }

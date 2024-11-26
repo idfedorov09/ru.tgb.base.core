@@ -5,7 +5,8 @@ import ru.idfedorov09.kotbot.domain.model.SmartString
 data class LastUserActionType(
     val type: SmartString<LastUserActionType>,
     val description: String? = null,
-): RegistryModel(LastUserActionType::class, type()!!) {
+    private val shouldRegister: Boolean = true,
+): RegistryModel(LastUserActionType::class, type.getWithoutParams()!!) {
 
     constructor(
         type: String,
@@ -15,5 +16,21 @@ data class LastUserActionType(
         description = description,
     )
 
-    init { registerModel() }
+    init { if (shouldRegister) registerModel() }
+
+    fun copy(
+        type: SmartString<LastUserActionType> = this.type,
+        description: String? = this.description,
+    ) = LastUserActionType(type.copy(), description, false)
+
+    // TODO: тесты
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is LastUserActionType) return false
+        return this.type.getWithoutParams() == other.type.getWithoutParams()
+    }
+
+    override fun hashCode(): Int {
+        return type.getWithoutParams()?.hashCode() ?: 0
+    }
 }

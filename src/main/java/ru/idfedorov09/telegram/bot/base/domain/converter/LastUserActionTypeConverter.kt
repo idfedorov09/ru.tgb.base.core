@@ -16,7 +16,7 @@ class LastUserActionTypeConverter : AttributeConverter<LastUserActionType, Strin
         return mark?.let { curMark ->
             val originLuat = SmartString<LastUserActionType>(curMark)
             val typeKey = originLuat.getWithoutParams()
-            val result = typeKey?.let { RegistryHolder.getRegistry<LastUserActionType>().get(it) }
+            val result = typeKey?.let { RegistryHolder.getRegistry<LastUserActionType>().get(it) }?.copy()
             result?.type?.addParameters(result, originLuat.getParams())
         }
     }
